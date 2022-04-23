@@ -1,0 +1,319 @@
+﻿<Window x:Class="HSBB.Views.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:HSBB.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:model="clr-namespace:HSBB.Models"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Style="{DynamicResource MaterialDesignWindow}"
+        mc:Ignorable="d"
+        Title="新冠核酸检测标本统计" Height="600" Width="1100"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <model:PictureConverter x:Key="PictureConverter"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding WindowClosedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel  Grid.Row="0"
+                     Orientation="Horizontal">
+            <Button Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="读身份证"
+                    Command="{Binding ReadIDCardCommand}"/>
+            <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="提交"
+                    Command="{Binding SaveCommand}"/>
+            <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="清空"
+                    Command="{Binding CleanUpCommand}"/>
+            <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="关闭"
+                    Command="{Binding CloseCommand}" 
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            
+            <materialDesign:PopupBox Margin="600 0 0 0"
+                                     StaysOpen="True"
+                                     PlacementMode="BottomAndAlignRightEdges">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ComboBox Grid.Row="0"
+                            Style="{DynamicResource MaterialDesignComboBox}"
+                            Width="100"
+                            materialDesign:HintAssist.Hint="读卡器型号"
+                            materialDesign:HintAssist.IsFloating="True"
+                            ItemsSource="{Binding ShellModel.IDCardReaderTypes}"
+                            DisplayMemberPath="IDCardReaderName"
+                            SelectedValue="{Binding ShellModel.CurrentIDCardReaderType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <StackPanel Grid.Row="2"
+                                Orientation="Horizontal"
+                                Margin="0 8 0 0">
+                        <Button Style="{DynamicResource MaterialDesignPopupBoxButton}"
+                                Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}" 
+                                Content="保存"/>
+                        <Button Style="{DynamicResource MaterialDesignPopupBoxButton}"
+                                Margin="8 0 0 0"
+                                Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}" 
+                                Content="取消"/>
+                    </StackPanel>
+                </Grid>
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Closed">
+                        <i:InvokeCommandAction Command="{Binding ConfigSaveCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </materialDesign:PopupBox>
+        </StackPanel>
+
+        <Separator Grid.Row="1"
+                   Style="{DynamicResource MaterialDesignSeparator}"/>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Row="0"
+                        Grid.Column="0"
+                        Orientation="Horizontal">
+                <TextBlock Text="姓名:"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                <TextBlock Text="性别:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                          Margin="8 0 0 0"
+                          Width="50"
+                          ItemsSource="{Binding ShellModel.SexTypes}"
+                          DisplayMemberPath="SexName"
+                          SelectedIndex="0"
+                          SelectedValue="{Binding ShellModel.CurrentSexType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="名族:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                          Margin="8 0 0 0"
+                          Width="50"
+                          ItemsSource="{Binding ShellModel.NationTypes}"
+                          DisplayMemberPath="NationName"
+                          SelectedIndex="0"
+                          SelectedValue="{Binding ShellModel.CurrentNationType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="年龄:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.Age,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="50"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                <TextBlock Text="证件地址:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.Address,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="300"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="0 16 0 0">
+                <TextBlock Text="身份证号:"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.IDNumber,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="150"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                <TextBlock Text="现住址:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.CurrentAddress}"
+                         Margin="8 0 0 0"
+                         Width="300"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                <TextBlock Text="手机号:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.PhoneNumber}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2"
+                        Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0"
+                        VerticalAlignment="Center">
+                <TextBlock Text="标本采集方式:"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <ListBox Margin="8 0 0 0"
+                         Style="{DynamicResource MaterialDesignChoiceChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding ShellModel.SpecimenCollectionTypes}"
+                         DisplayMemberPath="SpecimenCollectionName"
+                         SelectedIndex="1"
+                         SelectedValue="{Binding ShellModel.CurrentSpecimenCollectionType}"/>
+
+                <TextBlock Text="患者类别:"
+                           Margin="32 0 0 0"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <ListBox Margin="8 0 0 0"
+                         Style="{DynamicResource MaterialDesignChoiceChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding ShellModel.PatientCategoryTypes}"
+                         DisplayMemberPath="PatientCategoryName"
+                         SelectedIndex="2"
+                         SelectedValue="{Binding ShellModel.CurrentPatientCategoryType}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="0 16 0 0">
+                <TextBlock Text="检测类型:"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <ListBox Margin="8 0 0 0"
+                         Style="{DynamicResource MaterialDesignFilterChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding ShellModel.DetectionTypes}"
+                         DisplayMemberPath="DetectionName">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <prism:InvokeCommandAction Command="{Binding DetectionTypesAddedItemsCommand}" TriggerParameterPath="AddedItems"/>
+                            <prism:InvokeCommandAction Command="{Binding DetectionTypesRemovedItemsCommand}" TriggerParameterPath="RemovedItems"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+            </StackPanel>
+
+            <StackPanel Grid.Row="4"
+                    Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0">
+                <ToggleButton x:Name="IsOccupationNameChecked"
+                              Content="{materialDesign:PackIcon Kind=Close}"
+                              Style="{StaticResource MaterialDesignActionLightToggleButton}"/>
+                <TextBlock Margin="8 0 0 0"
+                           Text="是否为医疗机构、口岸检疫和边防检查、社会福利养老机构人员（是写上职业名称）"
+                           Style="{DynamicResource MaterialDesignTextBlock}"
+                           VerticalAlignment="Center"/>
+                <TextBox Text="{Binding ShellModel.OccupationName}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         IsEnabled="{Binding ElementName=IsOccupationNameChecked,Path=IsChecked}"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="5"
+                    Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0">
+                <StackPanel>
+                    <TextBlock Text="行程轨迹:(时间、地点、交通工具)"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding ShellModel.TravelTrajectory}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             Width="400"
+                             Height="100"
+                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"/>
+                </StackPanel>
+                <StackPanel Margin="64 0 0 0">
+                    <TextBlock Text="备注:"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding ShellModel.Remarks}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             Width="400"
+                             Height="100"
+                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Row="6"
+                            Grid.Column="0"
+                            Orientation="Horizontal"
+                            Margin="0 16 0 0">
+                <TextBlock Text="采样地点:"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.SamplingLocation}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                <TextBlock Text="采样人:"
+                           Margin="16 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                <TextBox Text="{Binding ShellModel.SamplingPerson}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+            </StackPanel>
+
+            <Image Grid.Row="1"
+                Grid.Column="1"
+                Grid.RowSpan="3"
+                Margin="32 0 0 0"
+                Source="{Binding ShellModel.Photo,Converter={StaticResource PictureConverter}}"/>
+
+
+            <materialDesign:Snackbar Grid.Row="7"
+                            Grid.Column="0"
+                                     Grid.ColumnSpan="2"
+                                         Margin="0 16 0 0"
+                                         MessageQueue="{Binding MessageQueue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+    </Grid>
+</Window>
