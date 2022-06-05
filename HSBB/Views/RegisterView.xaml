@@ -1,0 +1,354 @@
+﻿<UserControl x:Class="HSBB.Views.RegisterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:HSBB.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:model="clr-namespace:HSBB.Models"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <model:PictureConverter x:Key="PictureConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <materialDesign:DialogHost Identifier="MainDialog"
+                               DialogTheme="Light"
+                               CloseOnClickAway="True">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel  Grid.Row="0"
+                     Orientation="Horizontal">
+                <Button Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="实体凭证"
+                    Command="{Binding ReadEntityCertificateCommand}"/>
+                <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="电子凭证"
+                    Command="{Binding ReadEctronicCertificateCommand}"/>
+                <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="提交"
+                    Command="{Binding SaveCommand}"/>
+                <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="清空"
+                    Command="{Binding CleanUpCommand}"/>
+                <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="关闭"
+                    Command="{Binding CloseCommand}" 
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+                <materialDesign:PopupBox Margin="400 0 0 0"
+                                     StaysOpen="True"
+                                     PlacementMode="BottomAndAlignRightEdges"
+                                     Foreground="{DynamicResource PrimaryHueLightBrush}">
+                    <StackPanel Margin="8">
+                        <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                                Width="100"
+                                Margin="0 8 0 0"
+                                materialDesign:HintAssist.Hint="实体凭证类型"
+                                materialDesign:HintAssist.IsFloating="True"
+                                ItemsSource="{Binding RegisterModel.EntityCertificateTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                DisplayMemberPath="EntityCertificateName"
+                                SelectedValue="{Binding RegisterModel.CurrentEntityCertificateType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                                Width="100"
+                                Margin="0 8 0 0"
+                                materialDesign:HintAssist.Hint="电子凭证类型"
+                                materialDesign:HintAssist.IsFloating="True"
+                                ItemsSource="{Binding RegisterModel.ElectronicCertificateTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                DisplayMemberPath="ElectronicCertificateName"
+                                SelectedValue="{Binding RegisterModel.CurrentElectronicCertificateType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                            Width="100"
+                            materialDesign:HintAssist.Hint="读卡器类型"
+                            materialDesign:HintAssist.IsFloating="True"
+                            ItemsSource="{Binding RegisterModel.IDCardReaderTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                            DisplayMemberPath="IDCardReaderName"
+                            SelectedValue="{Binding RegisterModel.CurrentIDCardReaderType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                            Width="100"
+                            materialDesign:HintAssist.Hint="服务类型"
+                            materialDesign:HintAssist.IsFloating="True"
+                            ItemsSource="{Binding RegisterModel.DataBaseServiceTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                            DisplayMemberPath="DataBaseServiceName"
+                            SelectedValue="{Binding RegisterModel.CurrentDataBaseServiceType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <Button Style="{DynamicResource MaterialDesignPopupBoxButton}"
+                                HorizontalAlignment="Center"
+                            Margin="8 8 8 0"
+                            Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}" 
+                            Content="保存"/>
+                    </StackPanel>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Closed">
+                            <i:InvokeCommandAction Command="{Binding ConfigSaveCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </materialDesign:PopupBox>
+
+                <Button Margin="32 0 0 0"
+                        Style="{DynamicResource MaterialDesignIconForegroundButton}"
+                        Content="{materialDesign:PackIcon Kind=Navigation}"
+                        Foreground="{DynamicResource PrimaryHueLightBrush}"
+                        Command="{Binding NavigateToQueryCommand}"/>
+            </StackPanel>
+
+            <Separator Grid.Row="1"
+                   Style="{DynamicResource MaterialDesignSeparator}"/>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0"
+                        Grid.Column="0"
+                        Orientation="Horizontal">
+                    <TextBlock Text="姓名:"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                    <TextBlock Text="性别:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                          Margin="8 0 0 0"
+                          Width="50"
+                          ItemsSource="{Binding RegisterModel.SexTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="SexName"
+                          SelectedIndex="0"
+                          SelectedValue="{Binding RegisterModel.CurrentSexType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="名族:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <ComboBox Style="{DynamicResource MaterialDesignComboBox}"
+                          Margin="8 0 0 0"
+                          Width="50"
+                          ItemsSource="{Binding RegisterModel.NationTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="NationName"
+                          SelectedIndex="0"
+                          SelectedValue="{Binding RegisterModel.CurrentNationType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="年龄:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.Age,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="50"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                    <TextBlock Text="证件地址:"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.Address,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="300"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="0 16 0 0">
+                    <TextBlock Text="身份证号:"
+                           Style="{DynamicResource MaterialDesignTextBlock}"
+                           VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding RegisterModel.IDNumber,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                         Margin="8 0 0 0"
+                         Width="150"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                    <Button Margin="8 0 0 0"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                            Foreground="{DynamicResource PrimaryHueLightBrush}"
+                            Content="{materialDesign:PackIcon SmartCard}"
+                            ToolTip="读身份证"
+                            Command="{Binding ReadIDCardCommand}"/>
+                    <TextBlock Text="现住址:"
+                           Margin="32 0 0 0"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.CurrentAddress,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="300"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                    <TextBlock Text="手机号:"
+                           VerticalAlignment="Center"
+                           Margin="32 0 0 0"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.PhoneNumber,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2"
+                        Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="标本采集方式:"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <ListBox Margin="8 0 0 0"
+                         Style="{DynamicResource MaterialDesignChoiceChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding RegisterModel.SpecimenCollectionTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         DisplayMemberPath="SpecimenCollectionName"
+                         SelectedIndex="1"
+                         SelectedValue="{Binding RegisterModel.CurrentSpecimenCollectionType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="患者类别:"
+                           Margin="32 0 0 0"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <ListBox Margin="8 0 0 0"
+                             Style="{DynamicResource MaterialDesignChoiceChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding RegisterModel.CategoryTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         DisplayMemberPath="CategoryName"
+                         SelectedIndex="2"
+                         SelectedValue="{Binding RegisterModel.CurrentCategoryType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="0 16 0 0">
+                    <TextBlock Text="检测类型:"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <ListBox Margin="8 0 0 0"
+                         Style="{DynamicResource MaterialDesignFilterChipPrimaryOutlineListBox}"
+                         ItemsSource="{Binding RegisterModel.DetectionTypes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         DisplayMemberPath="DetectionName">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <prism:InvokeCommandAction Command="{Binding DetectionTypesAddedItemsCommand}" TriggerParameterPath="AddedItems"/>
+                                <prism:InvokeCommandAction Command="{Binding DetectionTypesRemovedItemsCommand}" TriggerParameterPath="RemovedItems"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListBox>
+                </StackPanel>
+
+                <StackPanel Grid.Row="4"
+                    Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0">
+                    <ToggleButton x:Name="IsOccupationNameChecked"
+                              Content="{materialDesign:PackIcon Kind=Close}"
+                              Style="{StaticResource MaterialDesignActionLightToggleButton}"/>
+                    <TextBlock Margin="8 0 0 0"
+                           Text="是否为医疗机构、口岸检疫和边防检查、社会福利养老机构人员（是写上职业名称）"
+                           Style="{DynamicResource MaterialDesignTextBlock}"
+                           VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding RegisterModel.OccupationName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="8 0 0 0"
+                         Width="100"
+                         IsEnabled="{Binding ElementName=IsOccupationNameChecked,Path=IsChecked}"
+                         Style="{DynamicResource MaterialDesignTextBox}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="5"
+                    Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="0 16 0 0">
+                    <StackPanel>
+                        <TextBlock Text="行程轨迹:(时间、地点、交通工具)"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                        <TextBox Text="{Binding RegisterModel.TravelTrajectory,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             Width="400"
+                             Height="100"
+                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+                    <StackPanel Margin="64 0 0 0">
+                        <TextBlock Text="备注:"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                        <TextBox Text="{Binding RegisterModel.Remarks,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             Width="400"
+                             Height="100"
+                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Row="6"
+                            Grid.Column="0"
+                            Orientation="Horizontal"
+                            Margin="0 16 0 0">
+                    <TextBlock Text="采样地点:"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.SamplingLocation,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             Margin="8 0 0 0"
+                             Width="100"
+                             Style="{DynamicResource MaterialDesignTextBox}"/>
+                    <TextBlock Text="采样人:"
+                               Margin="16 0 0 0"
+                               Style="{DynamicResource MaterialDesignTextBlock}"/>
+                    <TextBox Text="{Binding RegisterModel.SamplingPerson,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             Margin="8 0 0 0"
+                             Width="100"
+                             Style="{DynamicResource MaterialDesignTextBox}"/>
+                </StackPanel>
+
+                <materialDesign:Snackbar Grid.Row="7"
+                                         Grid.Column="0"
+                                         Grid.ColumnSpan="2"
+                                         MessageQueue="{Binding MessageQueue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                <Border Grid.Row="1"
+                        Grid.Column="1"
+                        Grid.RowSpan="3"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource PrimaryHueLightBrush}"
+                        Padding="8"
+                        Margin="32 0 0 0"
+                        Width="120">
+                    <Image Source="{Binding RegisterModel.Photo,Converter={StaticResource PictureConverter}}"/>
+                </Border>
+            </Grid>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>

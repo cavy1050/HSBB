@@ -16,17 +16,30 @@ namespace HSBB
     {
         protected override DependencyObject CreateShell()
         {
-            return Container.Resolve<ShellWindow>();
+            return Container.Resolve<ShellView>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.Register<ISnackbarMessageQueue, SnackbarMessageQueue>();
+            containerRegistry.RegisterForNavigation<RegisterView>("RegisterView");
+            containerRegistry.RegisterForNavigation<QueryView>("QueryView");
+            containerRegistry.RegisterSingleton<ISnackbarMessageQueue, SnackbarMessageQueue>();
 
-            containerRegistry.Register<IIDCardReaderService, IDCardReader_DKT10>("DK_T10");
-            containerRegistry.Register<IIDCardReaderService, IDCardReader_GWI>("GWI");
+            containerRegistry.RegisterSingleton<IAppConfigController, AppConfigController>();
+            containerRegistry.RegisterSingleton<ILogController, TextLogController>();
 
-            containerRegistry.RegisterSingleton<IConfigService, ConfigService>();
+            containerRegistry.Register<IEntityCertificateController, EntityHealthController>("JKK");
+            containerRegistry.Register<IEntityCertificateController, EntityMedicalInsuranceController>("YBK");
+
+            containerRegistry.Register<IElectronicCertificateController, ElectronicYukangController>("YKM");
+            containerRegistry.Register<IElectronicCertificateController, ElectronicHealthController>("JKM");
+            containerRegistry.Register<IElectronicCertificateController, ElectronicMedicalInsuranceController>("YBM");
+
+            containerRegistry.Register<IIDCardController, DKT10Controller>("DK_T10");
+            containerRegistry.Register<IIDCardController, GWIController>("GWI");
+
+            containerRegistry.Register<IDataBaseController, NetWorkDataBaseController>("NetWork");
+            containerRegistry.Register<IDataBaseController, NativeDataBaseController>("Native");
         }
     }
 }

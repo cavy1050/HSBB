@@ -1,0 +1,202 @@
+﻿<UserControl x:Class="HSBB.Views.QueryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:HSBB.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.ComboBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal">
+            <TextBlock Text="开始日期:"
+                       VerticalAlignment="Center"
+                       Style="{DynamicResource MaterialDesignTextBlock}"/>
+            <DatePicker Margin="8 0 0 0"
+                        materialDesign:CalendarAssist.IsHeaderVisible="False"
+                        Width="100"
+                        SelectedDate="{Binding QueryModel.BeginDate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                        SelectedDateFormat="Short"/>
+            <TextBlock Text="结束日期:"
+                       Margin="32 0 0 0"
+                       VerticalAlignment="Center"
+                       Style="{DynamicResource MaterialDesignTextBlock}"/>
+            <DatePicker Margin="8 0 0 0"
+                        materialDesign:CalendarAssist.IsHeaderVisible="False"
+                        Width="100"
+                        SelectedDate="{Binding QueryModel.EndDate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+            <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="查询"
+                    Command="{Binding QueryCommand}"/>
+
+            <Button Margin="32 0 0 0"
+                    Style="{DynamicResource MaterialDesignOutlinedLightButton}"
+                    Content="导出"
+                    Command="{Binding ExportCommand}"/>
+
+            <Button Margin="400 0 0 0"
+                        Style="{DynamicResource MaterialDesignIconForegroundButton}"
+                        Content="{materialDesign:PackIcon Kind=Navigation}"
+                        Foreground="{DynamicResource PrimaryHueLightBrush}"
+                        Command="{Binding NavigateToRegisterCommand}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <DataGrid ItemsSource="{Binding QueryModel.PagingResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      AutoGenerateColumns="False"
+                      HeadersVisibility="All"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="序号"
+                                    Binding="{Binding ID}" 
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="姓名"
+                                    Binding="{Binding Name}" 
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="性别"
+                                    Binding="{Binding Sex}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="年龄"
+                                    Binding="{Binding Age}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="证件地址"
+                                    Binding="{Binding Address}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="身份证号"
+                                    Binding="{Binding IDNumber}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采样时间"
+                                    Binding="{Binding cyDate}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="现住址"
+                                    Binding="{Binding CurrentAddress}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="手机号"
+                                    Binding="{Binding PhoneNumber}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采集方式"
+                                    Binding="{Binding CurrentSpecimenCollectionType}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="患者类别"
+                                    Binding="{Binding CurrentPatientCategoryType}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="检测类型"
+                                    Binding="{Binding CurrentDetectionType}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="职业名称"
+                                    Binding="{Binding OccupationName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="行程轨迹"
+                                    Binding="{Binding TravelTrajectory}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="备注"
+                                    Binding="{Binding Remarks}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采样地点"
+                                    Binding="{Binding SamplingLocation}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采样人"
+                                    Binding="{Binding SamplingPerson}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            
+            <StackPanel Margin="0 16 0 0"
+                        Orientation="Horizontal">
+                <Button Margin="200 0 0 0"
+                        Style="{StaticResource MaterialDesignToolButton}"
+                        Width="30"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        Content="{materialDesign:PackIcon Kind=PageFirst}"
+                        Command="{Binding NavigateFirstPageCommand}"/>
+                <Button Style="{StaticResource MaterialDesignToolButton}"
+                        Width="30"
+                        Margin="8 0 0 0"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        Content="{materialDesign:PackIcon Kind=ChevronLeft}"
+                        Command="{Binding NavigateBeforePageCommand}"/>
+                <Button Style="{StaticResource MaterialDesignToolButton}"
+                        Width="30"
+                        Margin="8 0 0 0"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        Content="{materialDesign:PackIcon Kind=ChevronRight}"
+                        Command="{Binding NavigateNextPageCommand}"/>
+                <Button Style="{StaticResource MaterialDesignToolButton}"
+                        Width="30"
+                        Margin="8 0 0 0"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        Content="{materialDesign:PackIcon Kind=PageLast}"
+                        Command="{Binding NavigateLastPageCommand}"/>
+
+                <TextBlock Margin="32 0 0 0"
+                           VerticalAlignment="Center"
+                           Text="到第"/>
+                <TextBox Margin="8 0 0 0"
+                         VerticalAlignment="Center"
+                         Width="40"
+                         Text="{Binding QueryModel.CurrentPage,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Margin="8 0 0 0"
+                           VerticalAlignment="Center"
+                           Text="页"/>
+                <Button Style="{StaticResource MaterialDesignOutlinedLightButton}"
+                        Margin="8 0 0 0"
+                        Content="确定"
+                        Command="{Binding NavigateCurrentPageCommand}"/>
+
+                <TextBlock Margin="32 0 0 0"
+                           VerticalAlignment="Center"
+                           Text="{Binding QueryModel.TotalRecordText,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+
+            <materialDesign:Snackbar MessageQueue="{Binding MessageQueue,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

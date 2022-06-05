@@ -34,7 +34,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -60,10 +60,10 @@
     <ManifestKeyFile>HSBB_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -72,7 +72,27 @@
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>packages\Portable.BouncyCastle.1.8.9\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="KYSharp.SM, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\KYSharp.SM.2.0.0\lib\net45\KYSharp.SM.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=2.0.5.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
       <HintPath>packages\MaterialDesignColors.2.0.5\lib\net452\MaterialDesignColors.dll</HintPath>
     </Reference>
@@ -99,6 +119,24 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.5.6\lib\net45\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="Npoi.Mapper, Version=3.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Npoi.Mapper.3.5.1\lib\net45\Npoi.Mapper.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.5.6\lib\net45\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.5.6\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.5.6\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
     <Reference Include="Prism, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>packages\Prism.Core.8.1.97\lib\net47\Prism.dll</HintPath>
     </Reference>
@@ -109,8 +147,17 @@
       <HintPath>packages\Prism.Wpf.8.1.97\lib\net47\Prism.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.115.5, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-static-binary-x64-2015-1.0.115.5\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-static-binary-x64-2015-1.0.115.5\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -146,25 +193,82 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HSBBBootstrapper.cs" />
+    <Compile Include="Models\CertificateModel.cs" />
+    <Compile Include="Models\SynchronizeModel.cs" />
+    <Compile Include="Models\Types\AppConfigServiceTypes\AppConfigCollection.cs" />
     <Compile Include="Models\PictureConverter.cs" />
-    <Compile Include="Models\Types\DetectionType.cs" />
-    <Compile Include="Models\IDCardModel.cs" />
-    <Compile Include="Models\Types\IDCardReaderType.cs" />
-    <Compile Include="Models\Types\NationType.cs" />
-    <Compile Include="Models\Types\PatientCategoryType.cs" />
-    <Compile Include="Models\Types\SexType.cs" />
-    <Compile Include="Models\ShellModel.cs" />
-    <Compile Include="Models\Types\SpecimenCollectionType.cs" />
-    <Compile Include="Services\ConfigService\ConfigService.cs" />
-    <Compile Include="Services\ConfigService\IConfigService.cs" />
-    <Compile Include="Services\DataBaseService\DataBaseService.cs" />
-    <Compile Include="Services\DataBaseService\IDataBaseService.cs" />
-    <Compile Include="Services\IDCardReaderService\IDCardReader_DKT10.cs" />
-    <Compile Include="Services\IDCardReaderService\IDCardReader_GWI.cs" />
-    <Compile Include="Services\IDCardReaderService\IIDCardReaderService.cs" />
-    <Compile Include="ViewModels\ShellWindowViewModel.cs" />
-    <Compile Include="Views\ShellWindow.xaml.cs">
-      <DependentUpon>ShellWindow.xaml</DependentUpon>
+    <Compile Include="Models\QueryModel.cs" />
+    <Compile Include="Models\RegisterModel.cs" />
+    <Compile Include="Models\Types\AppConfigServiceTypes\AppConfigType.cs" />
+    <Compile Include="Models\Types\AppConfigServiceTypes\AppEnvironmentType.cs" />
+    <Compile Include="Models\Types\DataBaseServiceTypes\WaitForSynchronizeType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\DataBaseServiceType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\DetectionType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\DictionaryType.cs" />
+    <Compile Include="Models\Enums\DictionaryTypeEnum.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\EntityCertificateType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsResponseCipherStringType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsRequstJosnStringType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsResponseJsonStringType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\IMedicalInsuranceRequestContentType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceRequestContentType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceRequestDetailType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceRequestEmptyContentType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceRequestHeaderType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseContentType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseHeaderType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseTransferredType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsTransferredType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\ElectronicCertificateType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\IDCardReaderType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseDetailBaseinfoType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseDetailCardecinfoType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseDetailIdetinfoItemType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceResponseDetailInsuinfoItemType.cs" />
+    <Compile Include="Models\Types\CertificateReaderTypes\MedicalInsuranceTransferredType.cs" />
+    <Compile Include="Models\Types\IDCardReaderServiceTypes\IDCardTransferredType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\NationType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\CategoryType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\SexType.cs" />
+    <Compile Include="Models\Types\DictionaryTypes\SpecimenCollectionType.cs" />
+    <Compile Include="Models\Enums\SerialNnumberEnum.cs" />
+    <Compile Include="Models\Types\DataBaseServiceTypes\QueryOutputParamerterType.cs" />
+    <Compile Include="Services\AppConfigService\AppConfigController.cs" />
+    <Compile Include="Services\AppConfigService\IAppConfigController.cs" />
+    <Compile Include="Services\DataBaseService\NetWorkDataBaseController.cs" />
+    <Compile Include="Services\DataBaseService\IDataBaseController.cs" />
+    <Compile Include="Services\DataBaseService\NativeDataBaseController.cs" />
+    <Compile Include="Services\ElectronicCertificateReaderService\ElectronicHealthController.cs" />
+    <Compile Include="Services\ElectronicCertificateReaderService\ElectronicMedicalInsuranceController.cs" />
+    <Compile Include="Services\ElectronicCertificateReaderService\ElectronicYukangController.cs" />
+    <Compile Include="Services\ElectronicCertificateReaderService\IElectronicCertificateController.cs" />
+    <Compile Include="Services\EntityCertificateReaderService\EntityHealthController.cs" />
+    <Compile Include="Services\EntityCertificateReaderService\EntityMedicalInsuranceController.cs" />
+    <Compile Include="Services\EntityCertificateReaderService\IEntityCertificateController.cs" />
+    <Compile Include="Services\IDCardReaderService\DKT10Controller.cs" />
+    <Compile Include="Services\IDCardReaderService\GWIController.cs" />
+    <Compile Include="Services\IDCardReaderService\IIDCardController.cs" />
+    <Compile Include="Services\LogService\ILogController.cs" />
+    <Compile Include="Services\LogService\TextLogController.cs" />
+    <Compile Include="ViewModels\CertificateViewModel.cs" />
+    <Compile Include="ViewModels\QueryViewModel.cs" />
+    <Compile Include="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Compile Include="ViewModels\SynchronizeViewModel.cs" />
+    <Compile Include="Views\CertificateView.xaml.cs">
+      <DependentUpon>CertificateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SynchronizeView.xaml.cs">
+      <DependentUpon>SynchronizeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\QueryView.xaml.cs">
+      <DependentUpon>QueryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RegisterView.xaml.cs">
+      <DependentUpon>RegisterView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ShellView.xaml.cs">
+      <DependentUpon>ShellView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +290,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -207,7 +312,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\ShellWindow.xaml">
+    <Page Include="Views\CertificateView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SynchronizeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\QueryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RegisterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ShellView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
