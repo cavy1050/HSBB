@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace HSBB.Models
 {
-    public class AppConfigType
+    public class ConfigType
     {
-        public string AppConfigCode { get; set; }
-        public string AppConfigValue { get; set; }
+        public string ConfigCode { get; set; }
+        public string ConfigValue { get; set; }
     }
 }

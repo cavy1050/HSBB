@@ -7,12 +7,12 @@ using HSBB.Models;
 
 namespace HSBB.Services
 {
-    public interface IAppConfigController
+    public interface IApplictionController
     {
         bool IsValidateSucceed { get; set; }
-        AppEnvironmentType AppEnvironmentSetting { get; set; }
-        AppConfigSet AppConfigSetting { get; set; }
+        EnvironmentType EnvironmentSetting { get; set; }
+        ConfigSet ConfigSettings { get; set; }
 
-        void Save(AppConfigSet appConfigCollectionArs);
+        void Save(ConfigSet configSetArgs);
     }
 }

@@ -11,19 +11,19 @@ using HSBB.Models;
 
 namespace HSBB.Services
 {
-    public class AppConfigController : IAppConfigController
+    public class ApplictionController : IApplictionController
     {
         Configuration configuration;
         ISnackbarMessageQueue messageQueue;
 
         public bool IsValidateSucceed { get; set; }
-        public AppEnvironmentType AppEnvironmentSetting { get; set; }
-        public AppConfigSet AppConfigSetting { get; set; }
+        public EnvironmentType EnvironmentSetting { get; set; }
+        public ConfigSet ConfigSettings { get; set; }
 
-        public AppConfigController(IContainerProvider containerProviderArgs)
+        public ApplictionController(IContainerProvider containerProviderArgs)
         {
-            AppEnvironmentSetting = new AppEnvironmentType();
-            AppConfigSetting = new AppConfigSet();
+            EnvironmentSetting = new EnvironmentType();
+            ConfigSettings = new ConfigSet();
 
             messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
@@ -37,22 +37,22 @@ namespace HSBB.Services
         {
             IsValidateSucceed = false;
 
-            AppEnvironmentSetting.AppConfigFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.config";
-            if (!File.Exists(AppEnvironmentSetting.AppConfigFilePath))
+            EnvironmentSetting.ApplictionConfigFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.config";
+            if (!File.Exists(EnvironmentSetting.ApplictionConfigFilePath))
             {
                 messageQueue.Enqueue("当前程序环境缺少配置文件,请检查配置并重启程序!");
                 return false;
             }
 
-            AppEnvironmentSetting.NativeDataBaseFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.db";
-            if (!File.Exists(AppEnvironmentSetting.NativeDataBaseFilePath))
+            EnvironmentSetting.NativeDataBaseFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.db";
+            if (!File.Exists(EnvironmentSetting.NativeDataBaseFilePath))
             {
                 messageQueue.Enqueue("当前程序环境缺少本地数据库文件,请检查配置并重启程序!");
                 return false;
             }
 
-            AppEnvironmentSetting.TextLogFilePath= AppDomain.CurrentDomain.BaseDirectory + "HSBB.log";
-            AppEnvironmentSetting.ExportXlsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\HSBB.xls";
+            EnvironmentSetting.TextLogFilePath= AppDomain.CurrentDomain.BaseDirectory + "HSBB.log";
+            EnvironmentSetting.ExportXlsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\HSBB.xls";
 
             IsValidateSucceed = true;
             return true;
@@ -61,30 +61,30 @@ namespace HSBB.Services
         private void Load()
         {
             ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
-            fileMap.ExeConfigFilename = AppEnvironmentSetting.AppConfigFilePath;
+            fileMap.ExeConfigFilename = EnvironmentSetting.ApplictionConfigFilePath;
             configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
 
             KeyValueConfigurationCollection keyValueConfigurationCollection = configuration.AppSettings.Settings;
             foreach (KeyValueConfigurationElement keyValueConfigurationElement in keyValueConfigurationCollection)
             {
-                AppConfigSetting.Add(new AppConfigType
+                ConfigSettings.Add(new ConfigType
                 {
-                    AppConfigCode = keyValueConfigurationElement.Key,
-                    AppConfigValue = keyValueConfigurationElement.Value
+                    ConfigCode = keyValueConfigurationElement.Key,
+                    ConfigValue = keyValueConfigurationElement.Value
                 });
             }
         }
 
-        public void Save(AppConfigSet appConfigSetArgs)
+        public void Save(ConfigSet configSetArgs)
         {
             if (IsValidateSucceed)
             {
-                foreach (AppConfigType appConfigType in appConfigSetArgs)
+                foreach (ConfigType configType in configSetArgs)
                 {
-                    if (configuration.AppSettings.Settings.AllKeys.Contains(appConfigType.AppConfigCode))
-                        configuration.AppSettings.Settings[appConfigType.AppConfigCode].Value = appConfigType.AppConfigValue;
+                    if (configuration.AppSettings.Settings.AllKeys.Contains(configType.ConfigCode))
+                        configuration.AppSettings.Settings[configType.ConfigCode].Value = configType.ConfigValue;
                     else
-                        configuration.AppSettings.Settings.Add(appConfigType.AppConfigCode, appConfigType.AppConfigValue);
+                        configuration.AppSettings.Settings.Add(configType.ConfigCode, configType.ConfigValue);
                 }
 
                 configuration.Save(ConfigurationSaveMode.Modified);

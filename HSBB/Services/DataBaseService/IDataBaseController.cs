@@ -10,5 +10,7 @@ namespace HSBB.Services
     public interface IDataBaseController
     {
         bool Save(RegisterModel registerModelArgs);
+
+        IEnumerable<T> Query<T>(string beginDateStringArgs, string endDateStringArgs) where T : class;
     }
 }

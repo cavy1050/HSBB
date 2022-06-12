@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Prism.Ioc;
-using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using HSBB.Models;
 
@@ -19,22 +18,22 @@ namespace HSBB.Services
         [DllImport("SiInterface_hsf.dll", EntryPoint = "BUSINESS_HANDLE")]
         public static extern int BUSINESS_HANDLE(StringBuilder inputData, StringBuilder outputData);
 
-        ISnackbarMessageQueue messageQueue;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         ILogController logController;
 
-        int ret;
+        int ret=-1;
         StringBuilder inputStr, outputStr;
         bool isValidateSucceed;
 
         public EntityMedicalInsuranceController(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
-            this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             this.logController = containerProviderArgs.Resolve<ILogController>();
 
             inputStr = new StringBuilder(1024 * 1024);
             outputStr = new StringBuilder(1024 * 1024);
+
+            logController.WriteLog("实体医保卡服务调用成功!");
 
             Validate();
         }
@@ -43,17 +42,27 @@ namespace HSBB.Services
         {
             isValidateSucceed = false;
 
-            if (appConfigController.IsValidateSucceed)
+            if (applictionController.IsValidateSucceed)
             {
-                ret = INIT(inputStr);
-                if (ret == 0)
+                try
                 {
-                    isValidateSucceed = true;
-                    logController.WriteLog("实体医保卡环境检查成功!");
+                    ret = INIT(inputStr);
                 }
-                else
+                catch (Exception ex)
                 {
-                    messageQueue.Enqueue("医保环境检查错误!");
+                    logController.WriteLog("初始化实体医保卡环境错误," + ex.Message);
+                }
+                finally
+                {
+                    if (ret == 0)
+                    {
+                        isValidateSucceed = true;
+                        logController.WriteLog("初始化实体医保卡环境成功!");
+                    }
+                    else
+                    {
+                        logController.WriteLog("初始化实体医保卡环境错误," + inputStr.ToString());
+                    }
                 }
             }
         }
@@ -74,7 +83,6 @@ namespace HSBB.Services
 
                 if (ret != 0)
                 { 
-                    messageQueue.Enqueue("医保接口交易失败!");
                     logController.WriteLog("调用读卡交易失败:ret="+ret.ToString()+", outputStr="+outputStr.ToString());
                 }
                 else
@@ -82,7 +90,7 @@ namespace HSBB.Services
                     logController.WriteLog("调用读卡交易结束:" + outputStr.ToString());
                     MedicalInsuranceResponseHeaderType medicalInsuranceResponseHeaderType = JsonConvert.DeserializeObject<MedicalInsuranceResponseHeaderType>(outputStr.ToString());
                     if (medicalInsuranceResponseHeaderType.infcode != "0")
-                        messageQueue.Enqueue("医保接口交易错误," + medicalInsuranceResponseHeaderType.err_msg);
+                        logController.WriteLog("医保接口交易错误," + medicalInsuranceResponseHeaderType.err_msg);
                     else
                     {
                         MedicalInsuranceResponseDetailBaseinfoType medicalInsuranceResponseDetailBaseinfoType = medicalInsuranceResponseHeaderType.output.baseinfo;

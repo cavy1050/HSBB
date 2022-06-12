@@ -20,14 +20,14 @@ namespace HSBB.Services
         Database HSDB;
         string sqlStatement;
 
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         ILogController logController;
 
         bool isValidateSucceed;
 
         public NetWorkDataBaseController(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             logController = containerProviderArgs.Resolve<ILogController>();
 
             Validate();
@@ -37,9 +37,9 @@ namespace HSBB.Services
         {
             isValidateSucceed = false;
 
-            if (appConfigController.IsValidateSucceed)
+            if (applictionController.IsValidateSucceed)
             {
-                FileConfigurationSource fileConfigurationSource = new FileConfigurationSource(appConfigController.AppEnvironmentSetting.AppConfigFilePath);
+                FileConfigurationSource fileConfigurationSource = new FileConfigurationSource(applictionController.EnvironmentSetting.ApplictionConfigFilePath);
                 DatabaseProviderFactory databaseProviderFactory = new DatabaseProviderFactory(fileConfigurationSource);
                 HSDB = databaseProviderFactory.Create("HSDB");
                 DbConnection dbConnection = HSDB.CreateConnection();
@@ -129,21 +129,24 @@ namespace HSBB.Services
             return ret;
         }
 
-        public List<QueryOutputParamerterType> Query(string beginDateStringArgs, string endDateStringArgs)
+        public IEnumerable<T> Query<T>(string beginDateStringArgs, string endDateStringArgs) where T : class
         {
-            List<QueryOutputParamerterType> ret = new List<QueryOutputParamerterType>();
+            List<QueryNetworkRegisterDataType> ret = new List<QueryNetworkRegisterDataType>();
 
             if (isValidateSucceed)
             {
-                sqlStatement = "SELECT PageID,RowID,ID,Name,Sex,"+
-                                "Age,Address,IDNumber,cyDate,CurrentAddress,"+
-							      "PhoneNumber,CurrentSpecimenCollectionType,CurrentPatientCategoryType,CurrentDetectionType,OccupationName,"+
-							        "TravelTrajectory,Remarks,SamplingLocation,SamplingPerson FROM dbo.TF_GetRegisterInfo('"+ beginDateStringArgs + "','"+ endDateStringArgs + "')";
+                sqlStatement = "SELECT PageID,RowID,ID,Name,Sex," +
+                            "Age,Address,IDNumber,cyDate,CurrentAddress," +
+                              "PhoneNumber,CurrentSpecimenCollectionType,CurrentPatientCategoryType,CurrentDetectionType,OccupationName," +
+                                "TravelTrajectory,Remarks,SamplingLocation,SamplingPerson FROM dbo.TF_GetRegisterInfo('" + beginDateStringArgs + "','" + endDateStringArgs + "')";
 
-                ret =HSDB.ExecuteSqlStringAccessor<QueryOutputParamerterType>(sqlStatement).ToList();
+                ret = HSDB.ExecuteSqlStringAccessor<QueryNetworkRegisterDataType>(sqlStatement).ToList();
             }
 
-            return ret;
+            foreach(var v in ret)
+            {
+                yield return (T)(object)v;
+            }
         }
 
         public bool SynchronizeData(WaitForSynchronizeType waitForSynchronizeTypeArgs,ref int retValArgs)

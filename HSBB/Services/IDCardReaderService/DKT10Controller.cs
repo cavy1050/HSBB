@@ -60,14 +60,14 @@ namespace HSBB.Services
         bool isValidateSucceed;
 
         ISnackbarMessageQueue messageQueue;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
 
         public DKT10Controller(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
-            if (appConfigController.IsValidateSucceed)
+            if (applictionController.IsValidateSucceed)
                 Validate();
         }
 

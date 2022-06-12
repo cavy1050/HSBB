@@ -285,13 +285,13 @@ namespace HSBB.Models
         }
 
         IContainerProvider containerProvider;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         NativeDataBaseController nativeDataBaseController;
 
         public RegisterModel(IContainerProvider containerProviderArgs)
         {
             this.containerProvider = containerProviderArgs;
-            appConfigController = containerProvider.Resolve<IAppConfigController>();
+            applictionController = containerProvider.Resolve<IApplictionController>();
             nativeDataBaseController = (NativeDataBaseController)containerProvider.Resolve<IDataBaseController>("Native");
 
             CurrentDetectionType = new ObservableCollection<DetectionType>();
@@ -310,10 +310,10 @@ namespace HSBB.Models
             this.EntityCertificateTypes = new ObservableCollection<EntityCertificateType>(dictionaryType.EntityCertificateTypes);
             this.DataBaseServiceTypes = new ObservableCollection<DataBaseServiceType>(dictionaryType.DataBaseServiceTypes);
 
-            CurrentEntityCertificateType = EntityCertificateTypes.FirstOrDefault(x => x.EntityCertificateCode == appConfigController.AppConfigSetting["defaultEntityCertificateReaderType"]);
-            CurrentElectronicCertificateType = ElectronicCertificateTypes.FirstOrDefault(x => x.ElectronicCertificateCode == appConfigController.AppConfigSetting["defaultElectronicCertificateReaderType"]);
-            CurrentIDCardReaderType = IDCardReaderTypes.FirstOrDefault(x => x.IDCardReaderCode == appConfigController.AppConfigSetting["defaultIDCardReaderType"]);
-            CurrentDataBaseServiceType = DataBaseServiceTypes.FirstOrDefault(x => x.DataBaseServiceCode == appConfigController.AppConfigSetting["defaultDataBaseServiceType"]);
+            CurrentEntityCertificateType = EntityCertificateTypes.FirstOrDefault(x => x.EntityCertificateCode == applictionController.ConfigSettings["defaultEntityCertificateReaderType"]);
+            CurrentElectronicCertificateType = ElectronicCertificateTypes.FirstOrDefault(x => x.ElectronicCertificateCode == applictionController.ConfigSettings["defaultElectronicCertificateReaderType"]);
+            CurrentIDCardReaderType = IDCardReaderTypes.FirstOrDefault(x => x.IDCardReaderCode == applictionController.ConfigSettings["defaultIDCardReaderType"]);
+            CurrentDataBaseServiceType = DataBaseServiceTypes.FirstOrDefault(x => x.DataBaseServiceCode == applictionController.ConfigSettings["defaultDataBaseServiceType"]);
         }
 
         public void ClearUp()

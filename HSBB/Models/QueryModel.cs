@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using Prism.Ioc;
 using Prism.Mvvm;
+using HSBB.Services;
 
 namespace HSBB.Models
 {
@@ -24,11 +26,39 @@ namespace HSBB.Models
             set => SetProperty(ref endDate, value);
         }
 
-        CollectionView pagingResult;
-        public CollectionView PagingResult
+        List<QueryNetworkRegisterDataType> queryNetworkRegisterDataTypes;
+        public List<QueryNetworkRegisterDataType> QueryNetworkRegisterDataTypes
         {
-            get => pagingResult;
-            set => SetProperty(ref pagingResult, value);
+            get => queryNetworkRegisterDataTypes;
+            set => queryNetworkRegisterDataTypes = value;
+        }
+
+        List<QueryNativeRegisterDataType> queryNativeRegisterDataTypes;
+        public List<QueryNativeRegisterDataType> QueryNativeRegisterDataTypes
+        {
+            get => queryNativeRegisterDataTypes;
+            set => queryNativeRegisterDataTypes = value;
+        }
+
+        CollectionView nativeQueryResult;
+        public CollectionView NativeQueryResult
+        {
+            get => nativeQueryResult;
+            set => SetProperty(ref nativeQueryResult, value);
+        }
+
+        CollectionView networkQueryResult;
+        public CollectionView NetworkQueryResult
+        {
+            get => networkQueryResult;
+            set => SetProperty(ref networkQueryResult, value);
+        }
+
+        bool isNetworkService;
+        public bool IsNetworkService
+        {
+            get => isNetworkService;
+            set => SetProperty(ref isNetworkService, value);
         }
 
         int currentPage;
@@ -56,19 +86,71 @@ namespace HSBB.Models
             set => SetProperty(ref totalRecordText, value);
         }
 
-        public void LoadData(List<QueryOutputParamerterType> queryOutputParamerterTypesArgs)
+        IContainerProvider containerProvider;
+        IApplictionController applictionController;
+        IDataBaseController dataBaseController;
+
+        string defaultDataBaseServiceType;
+
+        public QueryModel(IContainerProvider containerProviderArgs)
         {
-            PagingResult= (CollectionView)CollectionViewSource.GetDefaultView(queryOutputParamerterTypesArgs);
+            this.containerProvider = containerProviderArgs;
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
 
-            TotalRecordCount = PagingResult.Count;
+            defaultDataBaseServiceType = applictionController.ConfigSettings["defaultDataBaseServiceType"];
+        }
 
-            CurrentPage = 1;
-            PagingResult.Filter = PagingFilter;
+        public void LoadData()
+        {
+            int pageID = 1, rowID = 1;
+
+            this.dataBaseController = containerProvider.Resolve<IDataBaseController>(defaultDataBaseServiceType);
+            if (defaultDataBaseServiceType == "NetWork")
+            {
+                QueryNetworkRegisterDataTypes = dataBaseController.Query<QueryNetworkRegisterDataType>(BeginDate.ToShortDateString(), EndDate.ToShortDateString()).ToList();
+                NetworkQueryResult = (CollectionView)CollectionViewSource.GetDefaultView(QueryNetworkRegisterDataTypes);
+                TotalRecordCount = NetworkQueryResult.Count;
+                IsNetworkService = true;
+                NetworkQueryResult.Filter = PagingFilter;
+            }            
+            else
+            {
+                QueryNativeRegisterDataTypes = dataBaseController.Query<QueryNativeRegisterDataType>(BeginDate.ToShortDateString(), EndDate.ToShortDateString()).ToList();
+
+                foreach (QueryNativeRegisterDataType queryNativeRegisterDataType in QueryNativeRegisterDataTypes)
+                {
+                    queryNativeRegisterDataType.RowID = rowID;
+                    queryNativeRegisterDataType.PageID = pageID;
+
+                    if (rowID < 10)
+                        rowID++;
+                    else
+                    {
+                        rowID = 1;
+                        pageID++;
+                    }
+                        
+                }
+
+                NativeQueryResult = (CollectionView)CollectionViewSource.GetDefaultView(QueryNativeRegisterDataTypes);
+                TotalRecordCount = NativeQueryResult.Count;
+                IsNetworkService = false;
+                NativeQueryResult.Filter = PagingFilter;
+            }       
+ 
         }
 
         private bool PagingFilter(object obj)
         {
-            return (obj as QueryOutputParamerterType).PageID == CurrentPage;
+            return defaultDataBaseServiceType == "NetWork" ? (obj as QueryNetworkRegisterDataType).PageID == CurrentPage : (obj as QueryNativeRegisterDataType).PageID == CurrentPage;
+        }
+
+        public void RefreshData()
+        {
+            if (defaultDataBaseServiceType == "NetWork")
+                NetworkQueryResult.Refresh();
+            else
+                NativeQueryResult.Refresh();
         }
     }
 }

@@ -14,14 +14,14 @@ namespace HSBB.Services
 {
     public class TextLogController : ILogController
     {
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         LogWriter logWriter;      
 
         public TextLogController(IContainerProvider containerProviderArgs)
         {
-            appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            applictionController = containerProviderArgs.Resolve<IApplictionController>();
 
-            string textLogFilePath = appConfigController.AppEnvironmentSetting.TextLogFilePath;
+            string textLogFilePath = applictionController.EnvironmentSetting.TextLogFilePath;
 
             TextFormatter textFormatter = new TextFormatter("{timestamp(local)}{tab}{message}");
             FlatFileTraceListener flatFileTraceListener = new FlatFileTraceListener(textLogFilePath, null, null, textFormatter);

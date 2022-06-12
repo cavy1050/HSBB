@@ -32,10 +32,7 @@ namespace HSBB.ViewModels
 
         IContainerProvider containerProvider;
         IRegionManager regionManager;
-        IAppConfigController appConfigController;
-        NetWorkDataBaseController networkDataBaseController;
-
-        List<QueryOutputParamerterType> queryOutputParamerterTypes;
+        IApplictionController applictionController;
 
         public DelegateCommand WindowLoadedCommand { get; private set; }
         public DelegateCommand NavigateToRegisterCommand { get; private set; }
@@ -50,7 +47,7 @@ namespace HSBB.ViewModels
         public QueryViewModel(IContainerProvider containerProviderArgs)
         {
             this.containerProvider = containerProviderArgs;
-            this.QueryModel = new QueryModel();
+            this.QueryModel = new QueryModel(containerProviderArgs);
             this.regionManager = containerProviderArgs.Resolve<IRegionManager>();
             this.MessageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
@@ -68,28 +65,31 @@ namespace HSBB.ViewModels
 
         private void OnWindowLoaded()
         {
-            this.appConfigController = containerProvider.Resolve<IAppConfigController>();
-            this.networkDataBaseController = (NetWorkDataBaseController)containerProvider.Resolve<IDataBaseController>("NetWork");
+            this.applictionController = containerProvider.Resolve<IApplictionController>();
         }
 
         private void OnExport()
         {
             var mapper = new Mapper();
 
-            mapper.Save(appConfigController.AppEnvironmentSetting.ExportXlsFilePath, queryOutputParamerterTypes, sheetIndex: 1, overwrite: true, xlsx: false);
+            string defaultDataBaseServiceType = applictionController.ConfigSettings["defaultDataBaseServiceType"];
+            if (defaultDataBaseServiceType == "NetWork")
+                mapper.Save(applictionController.EnvironmentSetting.ExportXlsFilePath, QueryModel.QueryNetworkRegisterDataTypes, sheetIndex: 1, overwrite: true, xlsx: false);
+            else
+                mapper.Save(applictionController.EnvironmentSetting.ExportXlsFilePath, QueryModel.QueryNativeRegisterDataTypes, sheetIndex: 1, overwrite: true, xlsx: false);
 
             MessageQueue.Enqueue("成功导出文件至桌面目录!");
         }
 
         private void OnNavigateCurrentPage()
         {
-            QueryModel.PagingResult.Refresh();
+            QueryModel.RefreshData();
         }
 
         private void OnNavigateLastPage()
         {
             QueryModel.CurrentPage = (int)Math.Ceiling(QueryModel.TotalRecordCount / 10.0);
-            QueryModel.PagingResult.Refresh();
+            QueryModel.RefreshData();
         }
 
         private void OnNavigateNextPage()
@@ -97,7 +97,7 @@ namespace HSBB.ViewModels
             if (QueryModel.CurrentPage <= Math.Ceiling(QueryModel.TotalRecordCount / 10.0))
             {
                 QueryModel.CurrentPage += 1;
-                QueryModel.PagingResult.Refresh();
+                QueryModel.RefreshData();
             }
         }
 
@@ -106,21 +106,20 @@ namespace HSBB.ViewModels
             if (QueryModel.CurrentPage>1)
             {
                 QueryModel.CurrentPage -= 1;
-                QueryModel.PagingResult.Refresh();
+                QueryModel.RefreshData();
             }
         }
 
         private void OnNavigateFirstPage()
         {
             QueryModel.CurrentPage = 1;
-            QueryModel.PagingResult.Refresh();
+            QueryModel.RefreshData();
         }
 
         private void OnQuery()
         {
-            queryOutputParamerterTypes = networkDataBaseController.Query(QueryModel.BeginDate.ToShortDateString(),QueryModel.EndDate.ToShortDateString());
-
-            QueryModel.LoadData(queryOutputParamerterTypes);
+            QueryModel.CurrentPage = 1;
+            QueryModel.LoadData();
         }
 
         private void OnNavigateToRegister()

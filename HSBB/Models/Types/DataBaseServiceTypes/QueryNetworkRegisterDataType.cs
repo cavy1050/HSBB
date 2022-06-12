@@ -7,7 +7,7 @@ using Npoi.Mapper.Attributes;
 
 namespace HSBB.Models
 {
-    public class QueryOutputParamerterType
+    public class QueryNetworkRegisterDataType
     {
         [Ignore]
         public int PageID { get; set; }

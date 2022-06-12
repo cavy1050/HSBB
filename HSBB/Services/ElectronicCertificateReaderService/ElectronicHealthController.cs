@@ -22,14 +22,14 @@ namespace HSBB.Services
         readonly string sm4Key = "037985f760b5c3d7";
         string defaultGovernmentCertificateUriString;
 
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         ISnackbarMessageQueue messageQueue;
 
         bool isValidateSucceed;
 
         public ElectronicHealthController(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
             Validate();
@@ -39,9 +39,9 @@ namespace HSBB.Services
         {
             isValidateSucceed = false;
 
-            if (appConfigController.IsValidateSucceed)
+            if (applictionController.IsValidateSucceed)
             {
-                defaultGovernmentCertificateUriString = appConfigController.AppConfigSetting["defaultGovernmentCertificateUriString"];
+                defaultGovernmentCertificateUriString = applictionController.ConfigSettings["defaultGovernmentCertificateUriString"];
 
                 string remoteHostUriString = defaultGovernmentCertificateUriString;
                 Regex IPAd = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");

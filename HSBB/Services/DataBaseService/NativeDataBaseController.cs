@@ -13,7 +13,7 @@ namespace HSBB.Services
 {
     public class NativeDataBaseController : IDataBaseController
     {
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         ILogController logController;
 
         bool isValidateSucceed;
@@ -22,7 +22,7 @@ namespace HSBB.Services
 
         public NativeDataBaseController(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             logController = containerProviderArgs.Resolve<ILogController>();
 
             Validate();
@@ -31,7 +31,7 @@ namespace HSBB.Services
         private void Validate()
         {
             isValidateSucceed = false;
-            string sqliteConnectionString = "Data Source= " + appConfigController.AppEnvironmentSetting.NativeDataBaseFilePath;
+            string sqliteConnectionString = "Data Source= " + applictionController.EnvironmentSetting.NativeDataBaseFilePath;
 
             try
             {
@@ -328,6 +328,56 @@ namespace HSBB.Services
             }
 
             return ret;
+        }
+
+        public IEnumerable<T> Query<T>(string beginDateStringArgs, string endDateStringArgs) where T : class
+        {
+            List<QueryNativeRegisterDataType> ret = new List<QueryNativeRegisterDataType>();
+
+            if (isValidateSucceed)
+            {
+                sqliteConnection.Open();
+
+                sqlStatement = "SELECT SerialNumber,Name,SexName,NationName,Age,Address,IDNumber,CurrentAddress,PhoneNumber,SpecimenCollectionName," +
+                    "CategoryName,DetectionName,OccupationName,TravelTrajectory,Remarks,SamplingLocation,SamplingPerson,CreateDateTime,case when IsSynchronized=1 then '是' else '否' end IsSynchronized,SynchronizeDateTime," +
+                      "NetWorkSerialNumber  FROM PatientInfo WHERE CreateDateTime BETWEEN '" + beginDateStringArgs + "' AND '" + endDateStringArgs + "'";
+
+                logController.WriteLog(sqlStatement);
+                SQLiteCommand sqliteCommand = new SQLiteCommand(sqlStatement, sqliteConnection);
+                SQLiteDataReader sqliteDataReader = sqliteCommand.ExecuteReader();
+                while (sqliteDataReader.Read())
+                {
+                    ret.Add(new  QueryNativeRegisterDataType
+                    {
+                        SerialNumber = Convert.ToInt64(sqliteDataReader[0]),
+                        Name = sqliteDataReader[1].ToString(),
+                        SexName = sqliteDataReader[2].ToString(),
+                        NationName = sqliteDataReader[3].ToString(),
+                        Age = (int)sqliteDataReader[4],
+                        Address = sqliteDataReader[5].ToString(),
+                        IDNumber = sqliteDataReader[6].ToString(),
+                        CurrentAddress = sqliteDataReader[7].ToString(),
+                        PhoneNumber = sqliteDataReader[8].ToString(),
+                        SpecimenCollectionName = sqliteDataReader[9].ToString(),
+                        CategoryName = sqliteDataReader[10].ToString(),
+                        DetectionName = sqliteDataReader[11].ToString(),
+                        OccupationName = sqliteDataReader[12].ToString(),
+                        TravelTrajectory = sqliteDataReader[13].ToString(),
+                        Remarks = sqliteDataReader[14].ToString(),
+                        SamplingLocation = sqliteDataReader[15].ToString(),
+                        SamplingPerson = sqliteDataReader[16].ToString(),
+                        CreateDateTime = sqliteDataReader[17].ToString(),
+                        IsSynchronized = sqliteDataReader[18].ToString(),
+                        SynchronizeDateTime = sqliteDataReader[19].ToString(),
+                        NetWorkSerialNumber = Convert.ToInt64(sqliteDataReader[20])
+                    });
+                }
+            }
+
+            foreach (var v in ret)
+            {
+                yield return (T)(object)v;
+            }
         }
     }
 }

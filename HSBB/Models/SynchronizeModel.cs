@@ -22,7 +22,7 @@ namespace HSBB.Models
         }
 
         IContainerProvider containerProvider;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         NativeDataBaseController nativeDataBaseController;
         NetWorkDataBaseController networkDataBaseController;
 
@@ -31,17 +31,17 @@ namespace HSBB.Models
         public SynchronizeModel(IContainerProvider containerProviderArgs)
         {
             this.containerProvider = containerProviderArgs;
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
         }
 
         public void SynchronizeData()
         {
-            totalQueueCount = appConfigController.AppEnvironmentSetting.WaitForSynchronizeTypes.Count;
+            totalQueueCount = applictionController.EnvironmentSetting.WaitForSynchronizeTypes.Count;
             int retVal = 0;
 
             for (int i = 0; i < totalQueueCount; i++)
             {
-                WaitForSynchronizeType synchronizeType = appConfigController.AppEnvironmentSetting.WaitForSynchronizeTypes.Dequeue();
+                WaitForSynchronizeType synchronizeType = applictionController.EnvironmentSetting.WaitForSynchronizeTypes.Dequeue();
 
                 networkDataBaseController = (NetWorkDataBaseController)containerProvider.Resolve<IDataBaseController>("NetWork");
                 nativeDataBaseController = (NativeDataBaseController)containerProvider.Resolve<IDataBaseController>("Native");
@@ -52,7 +52,7 @@ namespace HSBB.Models
                     {
                         nativeDataBaseController.ConfirmSynchronizeResult(synchronizeType.SerialNumber, retVal);
 
-                        currentQueueCount = appConfigController.AppEnvironmentSetting.WaitForSynchronizeTypes.Count;
+                        currentQueueCount = applictionController.EnvironmentSetting.WaitForSynchronizeTypes.Count;
                         ProcessingProgress = 100 - currentQueueCount / totalQueueCount * 100;
                     }
                 }

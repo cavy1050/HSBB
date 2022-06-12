@@ -37,15 +37,15 @@ namespace HSBB.Services
 		public static extern int IDCard_ReadIDCardMsgExt(string photoName, int dwTimeOut, byte[] msg, byte[] pszRcCode);
 
 		ISnackbarMessageQueue messageQueue;
-		IAppConfigController appConfigController;
+		IApplictionController applictionController;
 		bool isValidateSucceed;
 
 		public GWIController(IContainerProvider containerProviderArgs)
 		{
-			this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+			this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
 			this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
-			if (appConfigController.IsValidateSucceed)
+			if (applictionController.IsValidateSucceed)
 				Validate();
 		}
 

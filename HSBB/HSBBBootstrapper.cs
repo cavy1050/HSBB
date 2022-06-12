@@ -25,7 +25,7 @@ namespace HSBB
             containerRegistry.RegisterForNavigation<QueryView>("QueryView");
             containerRegistry.RegisterSingleton<ISnackbarMessageQueue, SnackbarMessageQueue>();
 
-            containerRegistry.RegisterSingleton<IAppConfigController, AppConfigController>();
+            containerRegistry.RegisterSingleton<IApplictionController,ApplictionController>();
             containerRegistry.RegisterSingleton<ILogController, TextLogController>();
 
             containerRegistry.Register<IEntityCertificateController, EntityHealthController>("JKK");

@@ -35,7 +35,7 @@ namespace HSBB.ViewModels
 
         IContainerProvider containerProvider;
         IRegionManager regionManager;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         IEntityCertificateController entityCertificateController;
         IElectronicCertificateController electronicCertificateController;
         IIDCardController idCardController;
@@ -75,7 +75,7 @@ namespace HSBB.ViewModels
 
         private void OnWindowLoaded()
         {
-            appConfigController = containerProvider.Resolve<IAppConfigController>();
+            applictionController = containerProvider.Resolve<IApplictionController>();
             RegisterModel.LoadDictionaryData();
         }
 
@@ -133,12 +133,12 @@ namespace HSBB.ViewModels
 
         private async void OnConfigSave()
         {
-            AppConfigSet appConfigSet = new AppConfigSet();
-            appConfigSet.Add(new AppConfigType { AppConfigCode = "defaultEntityCertificateReaderType", AppConfigValue = RegisterModel.CurrentEntityCertificateType.EntityCertificateCode });
-            appConfigSet.Add(new AppConfigType { AppConfigCode = "defaultIDCardReaderType", AppConfigValue = RegisterModel.CurrentIDCardReaderType.IDCardReaderCode });
-            appConfigSet.Add(new AppConfigType { AppConfigCode = "defaultElectronicCertificateReaderType", AppConfigValue = RegisterModel.CurrentElectronicCertificateType.ElectronicCertificateCode });
-            appConfigSet.Add(new AppConfigType { AppConfigCode = "defaultDataBaseServiceType", AppConfigValue = RegisterModel.CurrentDataBaseServiceType.DataBaseServiceCode });
-            appConfigController.Save(appConfigSet);
+            applictionController.ConfigSettings["defaultEntityCertificateReaderType"] = RegisterModel.CurrentEntityCertificateType.EntityCertificateCode;
+            applictionController.ConfigSettings["defaultIDCardReaderType"] = RegisterModel.CurrentIDCardReaderType.IDCardReaderCode;
+            applictionController.ConfigSettings["defaultElectronicCertificateReaderType"] = RegisterModel.CurrentElectronicCertificateType.ElectronicCertificateCode;
+            applictionController.ConfigSettings["defaultDataBaseServiceType"] = RegisterModel.CurrentDataBaseServiceType.DataBaseServiceCode;
+
+            applictionController.Save(applictionController.ConfigSettings);
             messageQueue.Enqueue("保存设置成功!");
 
             string currentDataBaseServiceType = registerModel.CurrentDataBaseServiceType.DataBaseServiceCode;
@@ -150,7 +150,7 @@ namespace HSBB.ViewModels
 
                     if (waitForSynchronizeTypes.Count!=0)
                     {
-                        appConfigController.AppEnvironmentSetting.WaitForSynchronizeTypes = new Queue<WaitForSynchronizeType>(waitForSynchronizeTypes);
+                        applictionController.EnvironmentSetting.WaitForSynchronizeTypes = new Queue<WaitForSynchronizeType>(waitForSynchronizeTypes);
 
                         var view = new SynchronizeView();
                         var result = await DialogHost.Show(view, "MainDialog");

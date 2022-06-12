@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace HSBB.Models
 {
-    public class AppEnvironmentType
+    public class EnvironmentType
     {
-        public string AppConfigFilePath { get; set; }
+        public string ApplictionConfigFilePath { get; set; }
         public string NativeDataBaseFilePath { get; set; }
         public string ExportXlsFilePath { get; set; }
         public string TextLogFilePath { get; set; }

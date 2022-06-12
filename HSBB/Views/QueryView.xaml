@@ -18,6 +18,8 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.ComboBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <materialDesignConverters:BooleanToVisibilityConverter x:Key="networkConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+            <materialDesignConverters:BooleanToVisibilityConverter x:Key="nativeConverter" TrueValue="Collapsed"  FalseValue="Visible"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -70,13 +72,14 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1">
-            <DataGrid ItemsSource="{Binding QueryModel.PagingResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <DataGrid ItemsSource="{Binding QueryModel.NetworkQueryResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
                       AutoGenerateColumns="False"
                       HeadersVisibility="All"
                       HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding QueryModel.IsNetworkService, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource networkConverter}}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="序号"
                                     Binding="{Binding ID}" 
@@ -148,7 +151,99 @@
                                     ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
                 </DataGrid.Columns>
             </DataGrid>
-            
+
+            <DataGrid ItemsSource="{Binding QueryModel.NativeQueryResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      AutoGenerateColumns="False"
+                      HeadersVisibility="All"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding QueryModel.IsNetworkService, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource nativeConverter}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="序号"
+                                    Binding="{Binding SerialNumber}" 
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="姓名"
+                                    Binding="{Binding Name}" 
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="性别"
+                                    Binding="{Binding SexName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="年龄"
+                                    Binding="{Binding Age}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="证件地址"
+                                    Binding="{Binding Address}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="身份证号"
+                                    Binding="{Binding IDNumber}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="现住址"
+                                    Binding="{Binding CurrentAddress}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="手机号"
+                                    Binding="{Binding PhoneNumber}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采集方式"
+                                    Binding="{Binding SpecimenCollectionName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="患者类别"
+                                    Binding="{Binding CategoryName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="检测类型"
+                                    Binding="{Binding DetectionName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="职业名称"
+                                    Binding="{Binding OccupationName}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="行程轨迹"
+                                    Binding="{Binding TravelTrajectory}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="备注"
+                                    Binding="{Binding Remarks}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采样地点"
+                                    Binding="{Binding SamplingLocation}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="采样人"
+                                    Binding="{Binding SamplingPerson}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="创建时间"
+                                    Binding="{Binding CreateDateTime}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="是否同步"
+                                    Binding="{Binding IsSynchronized}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="同步时间"
+                                    Binding="{Binding SynchronizeDateTime}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                    <DataGridTextColumn Header="同步序号"
+                                    Binding="{Binding NetWorkSerialNumber}"
+                                    IsReadOnly="True"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
             <StackPanel Margin="0 16 0 0"
                         Orientation="Horizontal">
                 <Button Margin="200 0 0 0"

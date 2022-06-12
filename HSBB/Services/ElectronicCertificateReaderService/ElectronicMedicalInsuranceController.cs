@@ -20,7 +20,7 @@ namespace HSBB.Services
         public static extern int BUSINESS_HANDLE(StringBuilder inputData, StringBuilder outputData);
 
         ISnackbarMessageQueue messageQueue;
-        IAppConfigController appConfigController;
+        IApplictionController applictionController;
         ILogController logController;
 
         int ret;
@@ -30,7 +30,7 @@ namespace HSBB.Services
 
         public ElectronicMedicalInsuranceController(IContainerProvider containerProviderArgs)
         {
-            this.appConfigController = containerProviderArgs.Resolve<IAppConfigController>();
+            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
             this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
             this.logController = containerProviderArgs.Resolve<ILogController>();
 
@@ -44,7 +44,7 @@ namespace HSBB.Services
         {
             isValidateSucceed = false;
 
-            if (appConfigController.IsValidateSucceed)
+            if (applictionController.IsValidateSucceed)
             {
                 ret = INIT(inputStr);
                 if (ret == 0)
