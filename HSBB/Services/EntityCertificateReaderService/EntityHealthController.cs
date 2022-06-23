@@ -8,9 +8,10 @@ namespace HSBB.Services
 {
     public class EntityHealthController : IEntityCertificateController
     {
-        public T Load<T>() where T : class
+        public bool Load<T>(out T t) where T : class
         {
-            return default(T);
+            t = default(T);
+            return false;
         }
     }
 }

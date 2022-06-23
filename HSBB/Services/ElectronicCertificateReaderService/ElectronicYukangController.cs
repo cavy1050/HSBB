@@ -8,7 +8,6 @@ using System.Net.Http;
 using System.Net;
 using System.Net.NetworkInformation;
 using Prism.Ioc;
-using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using KYSharp.SM;
@@ -22,58 +21,58 @@ namespace HSBB.Services
         string defaultGovernmentCertificateUriString;
 
         IApplictionController applictionController;
-        ISnackbarMessageQueue messageQueue;
+        ILogController logController;
 
-        bool isValidateSucceed;
+        bool isValidateSucceed=false;
 
         public ElectronicYukangController(IContainerProvider containerProviderArgs)
         {
-            this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
-            this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
+            applictionController= containerProviderArgs.Resolve<IApplictionController>();
+            logController = containerProviderArgs.Resolve<ILogController>();
 
             Validate();
         }
 
         private void Validate()
         {
-            isValidateSucceed = false;
+            defaultGovernmentCertificateUriString = applictionController.ConfigSettings["defaultGovernmentCertificateUriString"];
 
-            if (applictionController.IsValidateSucceed)
+            string remoteHostUriString = defaultGovernmentCertificateUriString;
+            Regex IPAd = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
+            MatchCollection MatchResult = IPAd.Matches(remoteHostUriString);
+            string remoteHostIPString = MatchResult[0].ToString();
+            IPAddress ipAddress;
+
+            if (IPAddress.TryParse(remoteHostIPString, out ipAddress))
             {
-                defaultGovernmentCertificateUriString = applictionController.ConfigSettings["defaultGovernmentCertificateUriString"];
+                Ping ping = new Ping();
 
-                string remoteHostUriString = defaultGovernmentCertificateUriString;
-                Regex IPAd = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
-                MatchCollection MatchResult = IPAd.Matches(remoteHostUriString);
-                string remoteHostIPString = MatchResult[0].ToString();
-                IPAddress ipAddress;
-
-                if (IPAddress.TryParse(remoteHostIPString, out ipAddress))
+                try
                 {
-                    Ping ping = new Ping();
-
-                    try
-                    {
-                        PingReply pingReply = ping.Send(ipAddress);
-                    }
-                    catch
-                    {
-                        messageQueue.Enqueue("网络设置检查失败!");
-                    }
-                    finally
-                    {
-                        isValidateSucceed = true;
-                    }
+                    PingReply pingReply = ping.Send(ipAddress);
+                }
+                catch
+                {
+                    logController.WriteLog("网络设置检查失败![ipAddress="+ ipAddress.ToString()+"]");
+                }
+                finally
+                {
+                    isValidateSucceed = true;
                 }
             }
         }
 
-        public T Load<T>(string electronicCertificateStringArgs) where T : class
+        public bool Load<T>(out T t, string electronicCertificateStringArgs) where T : class
         {
-            GovernmentAffairsTransferredType governmentAffairsTransferredType= new GovernmentAffairsTransferredType();
+            bool ret = false;
+            t = default(T);
 
             if (isValidateSucceed && electronicCertificateStringArgs.Contains("outTime"))
             {
+                GovernmentAffairsTransferredType governmentAffairsTransferredType = new GovernmentAffairsTransferredType();
+
+                logController.WriteLog("获取渝康码文本信息成功![Text=" + electronicCertificateStringArgs);
+
                 Dictionary<string, string> dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(electronicCertificateStringArgs);
                 GovernmentAffairsRequstJosnStringType governmentAffairsRequstJosnStringType = new GovernmentAffairsRequstJosnStringType();
 
@@ -83,6 +82,8 @@ namespace HSBB.Services
                 governmentAffairsRequstJosnStringType.zoning = dic["zoning"];
 
                 string electronicCertificateReRequstJosnString = JsonConvert.SerializeObject(governmentAffairsRequstJosnStringType);
+                logController.WriteLog("获取渝康码Json请求信息成功![Text=" + electronicCertificateReRequstJosnString);
+
                 SM4Utils sm4Utils = new SM4Utils();
                 sm4Utils.secretKey = sm4Key;
 
@@ -91,6 +92,7 @@ namespace HSBB.Services
                 HttpClient httpClient = new HttpClient { BaseAddress = new Uri(defaultGovernmentCertificateUriString) };
 
                 string httpResponse = httpClient.GetStringAsync(new Uri(httpClient.BaseAddress, "appointment-do/getHealthCardInfo/ykm" + "?ciphertext=" + electronicCertificateCipheredRequestString.ToUpper()).OriginalString).Result;
+
                 if (!string.IsNullOrEmpty(httpResponse))
                 {
                     GovernmentAffairsResponseCipherStringType governmentAffairsResponseCipherStringType = JsonConvert.DeserializeObject<GovernmentAffairsResponseCipherStringType>(httpResponse);
@@ -99,6 +101,7 @@ namespace HSBB.Services
                         string receiveJosnString = sm4Utils.Decrypt_ECB(governmentAffairsResponseCipherStringType.CipherText);
                         if (!string.IsNullOrEmpty(receiveJosnString))
                         {
+                            logController.WriteLog("获取渝康码Json应答信息成功![Text=" + receiveJosnString);
                             GovernmentAffairsResponseJsonStringType governmentAffairsResponseJsonStringType = JsonConvert.DeserializeObject<GovernmentAffairsResponseJsonStringType>(receiveJosnString);
                             if (governmentAffairsResponseJsonStringType != null)
                             {
@@ -108,16 +111,18 @@ namespace HSBB.Services
                                 governmentAffairsTransferredType.Name = governmentAffairsResponseJsonStringType.aac003;
                                 governmentAffairsTransferredType.Sex = governmentAffairsResponseJsonStringType.aac004;
                                 governmentAffairsTransferredType.IDNumber = governmentAffairsResponseJsonStringType.zjhm;
+
+                                if (typeof(T) == typeof(GovernmentAffairsTransferredType))
+                                    t = (T)(object)governmentAffairsTransferredType;
+
+                                ret = true;
                             }
                         }
                     }
                 }
             }
 
-            if (typeof(T) == typeof(GovernmentAffairsTransferredType))
-                return (T)(object)governmentAffairsTransferredType;
-            else
-                return default(T);
+            return ret;
         }
     }
 }

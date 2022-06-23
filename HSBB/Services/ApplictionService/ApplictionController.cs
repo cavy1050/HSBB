@@ -16,7 +16,7 @@ namespace HSBB.Services
         Configuration configuration;
         ISnackbarMessageQueue messageQueue;
 
-        public bool IsValidateSucceed { get; set; }
+        bool isValidateSucceed = false;
         public EnvironmentType EnvironmentSetting { get; set; }
         public ConfigSet ConfigSettings { get; set; }
 
@@ -27,57 +27,58 @@ namespace HSBB.Services
 
             messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
 
-            if (Validate())
-            {
-                Load();
-            }
+            Validate();
         }
 
-        private bool Validate()
+        private void Validate()
         {
-            IsValidateSucceed = false;
+            EnvironmentSetting.TextLogFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.log";
+            EnvironmentSetting.ExportXlsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\HSBB.xls";
 
             EnvironmentSetting.ApplictionConfigFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.config";
             if (!File.Exists(EnvironmentSetting.ApplictionConfigFilePath))
-            {
                 messageQueue.Enqueue("当前程序环境缺少配置文件,请检查配置并重启程序!");
-                return false;
-            }
-
-            EnvironmentSetting.NativeDataBaseFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.db";
-            if (!File.Exists(EnvironmentSetting.NativeDataBaseFilePath))
+            else
             {
-                messageQueue.Enqueue("当前程序环境缺少本地数据库文件,请检查配置并重启程序!");
-                return false;
+                EnvironmentSetting.NativeDataBaseFilePath = AppDomain.CurrentDomain.BaseDirectory + "HSBB.db";
+                if (!File.Exists(EnvironmentSetting.NativeDataBaseFilePath))
+                    messageQueue.Enqueue("当前程序环境缺少本地数据库文件,请检查配置并重启程序!");
+                else
+                    isValidateSucceed = true;
             }
-
-            EnvironmentSetting.TextLogFilePath= AppDomain.CurrentDomain.BaseDirectory + "HSBB.log";
-            EnvironmentSetting.ExportXlsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\HSBB.xls";
-
-            IsValidateSucceed = true;
-            return true;
         }
 
-        private void Load()
+        public bool Load()
         {
-            ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
-            fileMap.ExeConfigFilename = EnvironmentSetting.ApplictionConfigFilePath;
-            configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+            bool ret = false;
 
-            KeyValueConfigurationCollection keyValueConfigurationCollection = configuration.AppSettings.Settings;
-            foreach (KeyValueConfigurationElement keyValueConfigurationElement in keyValueConfigurationCollection)
+            if (isValidateSucceed)
             {
-                ConfigSettings.Add(new ConfigType
+                ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
+                fileMap.ExeConfigFilename = EnvironmentSetting.ApplictionConfigFilePath;
+                configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+
+                KeyValueConfigurationCollection keyValueConfigurationCollection = configuration.AppSettings.Settings;
+                foreach (KeyValueConfigurationElement keyValueConfigurationElement in keyValueConfigurationCollection)
                 {
-                    ConfigCode = keyValueConfigurationElement.Key,
-                    ConfigValue = keyValueConfigurationElement.Value
-                });
+                    ConfigSettings.Add(new ConfigType
+                    {
+                        ConfigCode = keyValueConfigurationElement.Key,
+                        ConfigValue = keyValueConfigurationElement.Value
+                    });
+                }
+
+                ret = true;
             }
+
+            return ret;
         }
 
-        public void Save(ConfigSet configSetArgs)
+        public bool Save(ConfigSet configSetArgs)
         {
-            if (IsValidateSucceed)
+            bool ret = false;
+
+            if (isValidateSucceed)
             {
                 foreach (ConfigType configType in configSetArgs)
                 {
@@ -89,7 +90,11 @@ namespace HSBB.Services
 
                 configuration.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
+
+                ret = true;
             }
+
+            return ret;
         }
     }
 }

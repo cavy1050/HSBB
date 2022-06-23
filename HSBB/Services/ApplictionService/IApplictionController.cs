@@ -9,10 +9,10 @@ namespace HSBB.Services
 {
     public interface IApplictionController
     {
-        bool IsValidateSucceed { get; set; }
         EnvironmentType EnvironmentSetting { get; set; }
         ConfigSet ConfigSettings { get; set; }
 
-        void Save(ConfigSet configSetArgs);
+        bool Load();
+        bool Save(ConfigSet configSetArgs);
     }
 }

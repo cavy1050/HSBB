@@ -11,7 +11,6 @@ using Prism.Commands;
 using MaterialDesignThemes.Wpf;
 using HSBB.Models;
 using HSBB.Services;
-using System.Diagnostics;
 
 namespace HSBB.ViewModels
 {
@@ -68,7 +67,7 @@ namespace HSBB.ViewModels
                     DialogHost.CloseDialogCommand.Execute(null, null);
                 }));
 
-                messageQueue.Enqueue("同步成功!");
+                messageQueue.Enqueue("同步本地数据成功!");
             }
         }
     }

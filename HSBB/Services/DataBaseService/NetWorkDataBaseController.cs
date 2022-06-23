@@ -23,7 +23,7 @@ namespace HSBB.Services
         IApplictionController applictionController;
         ILogController logController;
 
-        bool isValidateSucceed;
+        bool isValidateSucceed=false;
 
         public NetWorkDataBaseController(IContainerProvider containerProviderArgs)
         {
@@ -35,48 +35,43 @@ namespace HSBB.Services
 
         private void Validate()
         {
-            isValidateSucceed = false;
+            FileConfigurationSource fileConfigurationSource = new FileConfigurationSource(applictionController.EnvironmentSetting.ApplictionConfigFilePath);
+            DatabaseProviderFactory databaseProviderFactory = new DatabaseProviderFactory(fileConfigurationSource);
+            HSDB = databaseProviderFactory.Create("HSDB");
+            DbConnection dbConnection = HSDB.CreateConnection();
+            string defaultDataBaseConnectionString = dbConnection.ConnectionString;
 
-            if (applictionController.IsValidateSucceed)
+            Regex IPAd = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
+            MatchCollection MatchResult = IPAd.Matches(defaultDataBaseConnectionString);
+            string dataBaseIPString = MatchResult[0].ToString();
+            IPAddress ipAddress;
+
+            if (IPAddress.TryParse(dataBaseIPString, out ipAddress))
             {
-                FileConfigurationSource fileConfigurationSource = new FileConfigurationSource(applictionController.EnvironmentSetting.ApplictionConfigFilePath);
-                DatabaseProviderFactory databaseProviderFactory = new DatabaseProviderFactory(fileConfigurationSource);
-                HSDB = databaseProviderFactory.Create("HSDB");
-                DbConnection dbConnection = HSDB.CreateConnection();
-                string defaultDataBaseConnectionString = dbConnection.ConnectionString;
+                Ping ping = new Ping();
 
-                Regex IPAd = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
-                MatchCollection MatchResult = IPAd.Matches(defaultDataBaseConnectionString);
-                string dataBaseIPString = MatchResult[0].ToString();
-                IPAddress ipAddress;
-
-                if (IPAddress.TryParse(dataBaseIPString, out ipAddress))
+                try
                 {
-                    Ping ping = new Ping();
-
+                    PingReply pingReply = ping.Send(ipAddress);
+                }
+                catch
+                {
+                    logController.WriteLog("网络设置检查失败：" + dataBaseIPString);
+                }
+                finally
+                {
                     try
                     {
-                        PingReply pingReply = ping.Send(ipAddress);
+                        //TODO 异步连接中连接字符串错误仍不显示错误消息.
+                        dbConnection.Open();
                     }
                     catch
                     {
-                        logController.WriteLog("网络设置检查失败：" + dataBaseIPString);
+                        logController.WriteLog("数据库连接检查失败,当前数据库连接字符串:" + defaultDataBaseConnectionString);
                     }
                     finally
                     {
-                        try
-                        {
-                            //TODO 异步连接中连接字符串错误仍不显示错误消息.
-                            dbConnection.Open();
-                        }
-                        catch
-                        {
-                            logController.WriteLog("数据库连接检查失败,当前数据库连接字符串:" + defaultDataBaseConnectionString);
-                        }
-                        finally
-                        {
-                            isValidateSucceed = true;
-                        }
+                        isValidateSucceed = true;
                     }
                 }
             }

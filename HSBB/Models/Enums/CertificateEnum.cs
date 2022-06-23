@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HSBB.Services
+namespace HSBB.Models
 {
-    public interface IEntityCertificateController
+    public enum CertificateEnum
     {
-        bool Load<T>(out T t) where T : class;
+        EntityCertificate,
+        ElectronicCertificate,
+        IDCard
     }
 }

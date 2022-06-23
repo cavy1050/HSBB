@@ -34,7 +34,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -150,12 +150,13 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.115.5, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+    <Reference Include="System.Data.SQLite, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-static-binary-x64-2015-1.0.115.5\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-binary-Win32-2015-1.0.116.0\System.Data.SQLite.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.SQLite.Linq">
-      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-static-binary-x64-2015-1.0.115.5\System.Data.SQLite.Linq.dll</HintPath>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\迅雷下载\sqlite-netFx46-binary-Win32-2015-1.0.116.0\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -194,6 +195,7 @@
     </Compile>
     <Compile Include="HSBBBootstrapper.cs" />
     <Compile Include="Models\CertificateModel.cs" />
+    <Compile Include="Models\Enums\CertificateEnum.cs" />
     <Compile Include="Models\SynchronizeModel.cs" />
     <Compile Include="Models\Types\ApplictionServiceTypes\ConfigSet.cs" />
     <Compile Include="Models\PictureConverter.cs" />
@@ -206,7 +208,6 @@
     <Compile Include="Models\Types\DictionaryTypes\DataBaseServiceType.cs" />
     <Compile Include="Models\Types\DictionaryTypes\DetectionType.cs" />
     <Compile Include="Models\Types\DictionaryTypes\DictionaryType.cs" />
-    <Compile Include="Models\Enums\DictionaryTypeEnum.cs" />
     <Compile Include="Models\Types\DictionaryTypes\EntityCertificateType.cs" />
     <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsResponseCipherStringType.cs" />
     <Compile Include="Models\Types\CertificateReaderTypes\GovernmentAffairsRequstJosnStringType.cs" />

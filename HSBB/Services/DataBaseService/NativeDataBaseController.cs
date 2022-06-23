@@ -45,9 +45,8 @@ namespace HSBB.Services
             finally
             {
                 sqliteConnection.Close();
-            }
-
-            isValidateSucceed = true;
+                isValidateSucceed = true;
+            }    
         }
 
         public DictionaryType LoadDictionaryData()
@@ -265,7 +264,7 @@ namespace HSBB.Services
 
         public List<WaitForSynchronizeType> FetchSynchronizeData()
         {
-            List<WaitForSynchronizeType> retWaitForSynchronizeType = new List<WaitForSynchronizeType>();
+            List<WaitForSynchronizeType> retWaitForSynchronizeTypes = new List<WaitForSynchronizeType>();
 
             if (isValidateSucceed)
             {
@@ -277,7 +276,7 @@ namespace HSBB.Services
                 SQLiteDataReader sqliteDataReader = sqliteCommand.ExecuteReader();
                 while (sqliteDataReader.Read())
                 {
-                    retWaitForSynchronizeType.Add(new WaitForSynchronizeType
+                    retWaitForSynchronizeTypes.Add(new WaitForSynchronizeType
                     {
                         SerialNumber = Convert.ToInt64(sqliteDataReader[0]),
                         Name = sqliteDataReader[1].ToString(),
@@ -298,12 +297,14 @@ namespace HSBB.Services
                         SamplingPerson = sqliteDataReader[16].ToString()
                     });
                 }
-                sqliteDataReader.Close();
 
+                applictionController.EnvironmentSetting.WaitForSynchronizeTypes = new Queue<WaitForSynchronizeType>(retWaitForSynchronizeTypes);
+
+                sqliteDataReader.Close();
                 sqliteConnection.Close();
             }
 
-            return retWaitForSynchronizeType;
+            return retWaitForSynchronizeTypes;
         }
 
         public bool ConfirmSynchronizeResult(Int64 sourceSerialNumberArgs,int TargetSerialNumberArgs)

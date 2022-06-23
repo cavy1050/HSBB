@@ -17,6 +17,14 @@ using HSBB.Services;
 
 namespace HSBB.ViewModels
 {
+    /// <summary>
+    /// 视图模型类设计原则
+    /// 1.视图模型不直接使用LogService功能，对于程序错误只在Snackbar中提示出现错误，错误详细信息则记录在日志中，
+    /// 相应的各种服务类实现中不直接使用SnackbarMessageQueue功能.
+    /// 2.服务类实现都暴露公共的返回值为布尔类型的方法，方法参数中可以指定是否需要返回外部类型参数(out关键字).
+    /// 3.各层之间交互关系如下:视图=>视图模型=>模型=>服务，视图模型不直接使用服务类方法获取数据，模型负责将服务类方法获取的数据进行初步加工交
+    /// 由视图模型调用。
+    /// </summary>
     public class RegisterViewModel : BindableBase,INavigationAware
     {
         RegisterModel registerModel;
@@ -35,10 +43,6 @@ namespace HSBB.ViewModels
 
         IContainerProvider containerProvider;
         IRegionManager regionManager;
-        IApplictionController applictionController;
-        IEntityCertificateController entityCertificateController;
-        IElectronicCertificateController electronicCertificateController;
-        IIDCardController idCardController;
         IDataBaseController dataBaseController;
 
         public DelegateCommand WindowLoadedCommand { get; private set; }
@@ -75,7 +79,6 @@ namespace HSBB.ViewModels
 
         private void OnWindowLoaded()
         {
-            applictionController = containerProvider.Resolve<IApplictionController>();
             RegisterModel.LoadDictionaryData();
         }
 
@@ -87,8 +90,8 @@ namespace HSBB.ViewModels
                 messageQueue.Enqueue("暂不支持当前实体凭证类型,请重新选择!");
             else
             {
-                this.entityCertificateController = containerProvider.Resolve<IEntityCertificateController>(currentEntityCertificateType);
-                RegisterModel.TransformData<MedicalInsuranceTransferredType>(entityCertificateController.Load<MedicalInsuranceTransferredType>());
+                if (!RegisterModel.TransformServiceData(CertificateEnum.EntityCertificate))
+                    messageQueue.Enqueue("读取实体医保卡信息错误,详细信息请查阅日志!");
             }
         }
 
@@ -98,9 +101,9 @@ namespace HSBB.ViewModels
 
             if (currentElectronicCertificateType == "YBM")
             {
-                electronicCertificateController = containerProvider.Resolve<IElectronicCertificateController>(currentElectronicCertificateType);
-                RegisterModel.TransformData<MedicalInsuranceTransferredType>(electronicCertificateController.Load<MedicalInsuranceTransferredType>(""));
-            }     
+                if (!RegisterModel.TransformServiceData(CertificateEnum.ElectronicCertificate,string.Empty))
+                    messageQueue.Enqueue("读取电子医保码信息错误,详细信息请查阅日志!");
+            }             
             else
             {
                 var view = new CertificateView();
@@ -114,15 +117,8 @@ namespace HSBB.ViewModels
 
             if (!string.IsNullOrEmpty(currentElectronicCertificateString))
             {
-                if (currentElectronicCertificateString.Contains("outTime") || currentElectronicCertificateString.Contains("5000A0003"))
-                {
-                    string currentElectronicCertificateType = RegisterModel.CurrentElectronicCertificateType.ElectronicCertificateCode;
-                    if (!string.IsNullOrEmpty(currentElectronicCertificateType))
-                    {
-                        this.electronicCertificateController = containerProvider.Resolve<IElectronicCertificateController>(currentElectronicCertificateType);
-                        RegisterModel.TransformData<GovernmentAffairsTransferredType>(electronicCertificateController.Load<GovernmentAffairsTransferredType>(currentElectronicCertificateString));
-                    }   
-                }     
+                if (!RegisterModel.TransformServiceData(CertificateEnum.ElectronicCertificate, currentElectronicCertificateString))
+                    messageQueue.Enqueue("读取电子凭证码信息错误,详细信息请查阅日志!");
             }
         }
 
@@ -133,42 +129,29 @@ namespace HSBB.ViewModels
 
         private async void OnConfigSave()
         {
-            applictionController.ConfigSettings["defaultEntityCertificateReaderType"] = RegisterModel.CurrentEntityCertificateType.EntityCertificateCode;
-            applictionController.ConfigSettings["defaultIDCardReaderType"] = RegisterModel.CurrentIDCardReaderType.IDCardReaderCode;
-            applictionController.ConfigSettings["defaultElectronicCertificateReaderType"] = RegisterModel.CurrentElectronicCertificateType.ElectronicCertificateCode;
-            applictionController.ConfigSettings["defaultDataBaseServiceType"] = RegisterModel.CurrentDataBaseServiceType.DataBaseServiceCode;
-
-            applictionController.Save(applictionController.ConfigSettings);
-            messageQueue.Enqueue("保存设置成功!");
-
-            string currentDataBaseServiceType = registerModel.CurrentDataBaseServiceType.DataBaseServiceCode;
-            if(!string.IsNullOrEmpty(currentDataBaseServiceType))
+            if (!registerModel.SaveConfigData())
+                messageQueue.Enqueue("保存配置信息失败!");
+            else
             {
-                if (currentDataBaseServiceType== "NetWork")
+                string currentDataBaseServiceType = registerModel.CurrentDataBaseServiceType.DataBaseServiceCode;
+                if (!string.IsNullOrEmpty(currentDataBaseServiceType))
                 {
-                    List<WaitForSynchronizeType> waitForSynchronizeTypes = registerModel.FetchSynchronizeData();
-
-                    if (waitForSynchronizeTypes.Count!=0)
+                    if (currentDataBaseServiceType == "NetWork")
                     {
-                        applictionController.EnvironmentSetting.WaitForSynchronizeTypes = new Queue<WaitForSynchronizeType>(waitForSynchronizeTypes);
-
-                        var view = new SynchronizeView();
-                        var result = await DialogHost.Show(view, "MainDialog");
-                    }     
+                        if (registerModel.FetchSynchronizeData() != 0)
+                        {
+                            var view = new SynchronizeView();
+                            var result = await DialogHost.Show(view, "MainDialog");
+                        }
+                    }
                 }
             }
         }
 
         private void OnReadIDCard()
         {
-            string currentIDCardReaderType = RegisterModel.CurrentIDCardReaderType.IDCardReaderCode;
-
-            if (!string.IsNullOrEmpty(currentIDCardReaderType))
-            {
-                idCardController = containerProvider.Resolve<IIDCardController>(currentIDCardReaderType);
-
-                RegisterModel.TransformData<IDCardTransferredType>(idCardController.Load());
-            }
+            if (!RegisterModel.TransformServiceData(CertificateEnum.IDCard))
+                messageQueue.Enqueue("读取身份证信息错误,详细信息请查阅日志!");
         }
 
         private void OnClose(object obj)
@@ -201,7 +184,7 @@ namespace HSBB.ViewModels
         private void OnSave()
         {
             Validator<RegisterModel> registerModelValidator = ValidationFactory.CreateValidator<RegisterModel>();
-            ValidationResults results = registerModelValidator.Validate(this.RegisterModel);
+            ValidationResults results = registerModelValidator.Validate(RegisterModel);
             if (!results.IsValid)
             {
                 foreach (ValidationResult item in results)
@@ -211,20 +194,10 @@ namespace HSBB.ViewModels
             }
             else
             {
-                string currentDataBaseServiceType = registerModel.CurrentDataBaseServiceType.DataBaseServiceCode;
-
-                if (!string.IsNullOrEmpty(currentDataBaseServiceType))
-                {
-                    dataBaseController = containerProvider.Resolve<IDataBaseController>(currentDataBaseServiceType);
-
-                    if (dataBaseController.Save(this.RegisterModel))
-                    {
-                        messageQueue.Enqueue("保存成功!");
-                        RegisterModel.ClearUp();
-                    }
-                    else
-                        messageQueue.Enqueue("保存失败!");
-                }
+                if (!registerModel.SaveData(RegisterModel))
+                    messageQueue.Enqueue("保存数据失败!");
+                else
+                    messageQueue.Enqueue("保存数据成功!");
             }
         }
 

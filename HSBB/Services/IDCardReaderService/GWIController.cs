@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Prism.Ioc;
-using MaterialDesignThemes.Wpf;
 using HSBB.Models;
 
 namespace HSBB.Services
@@ -36,17 +35,14 @@ namespace HSBB.Services
 		[DllImport("GWI_IDCard_Driver.dll")]
 		public static extern int IDCard_ReadIDCardMsgExt(string photoName, int dwTimeOut, byte[] msg, byte[] pszRcCode);
 
-		ISnackbarMessageQueue messageQueue;
-		IApplictionController applictionController;
 		bool isValidateSucceed;
+		ILogController logController;
 
 		public GWIController(IContainerProvider containerProviderArgs)
 		{
-			this.applictionController = containerProviderArgs.Resolve<IApplictionController>();
-			this.messageQueue = containerProviderArgs.Resolve<ISnackbarMessageQueue>();
+			logController = containerProviderArgs.Resolve<ILogController>();
 
-			if (applictionController.IsValidateSucceed)
-				Validate();
+			Validate();
 		}
 
 		private void Validate()
@@ -59,12 +55,12 @@ namespace HSBB.Services
 
 			int RetI = IDCard_SetDeviceParam(devType, devPort, devPortParam, pszRcCode);
 			if (RetI != 0)
-				messageQueue.Enqueue("初始化身份证读卡设备失败!");
+				logController.WriteLog("调用身份证读取函数失败![IDCard_SetDeviceParam]");
 			else
 			{
 				RetI = IDCard_OpenDevice(pszRcCode);
 				if (RetI != 0)
-					messageQueue.Enqueue("查找身份证失败!");
+					logController.WriteLog("调用身份证读取函数失败![IDCard_OpenDevice]");
 				else
 					isValidateSucceed = true;
 			}
@@ -80,12 +76,15 @@ namespace HSBB.Services
 			return flag;
 		}
 
-		public IDCardTransferredType Load()
+		public bool Load(out IDCardTransferredType idCardTransferredTypeArgs)
         {
-			IDCardTransferredType retIDCardTransferredType = new IDCardTransferredType();
+			bool ret = false;
+			idCardTransferredTypeArgs = default(IDCardTransferredType);
 
 			if (isValidateSucceed)
 			{
+				IDCardTransferredType value = new IDCardTransferredType();
+
 				byte[] pszRcCode = new byte[2000];
 				byte[] msg = new byte[4000];
 				int RetI = IDCard_ReadIDCardMsg(5000u, msg, pszRcCode);
@@ -97,16 +96,19 @@ namespace HSBB.Services
 					if (!string.IsNullOrEmpty(str))
 					{
 						string[] idmsg = str.Split(new char[] { '|' });
-						retIDCardTransferredType.IDNumber = idmsg[4].Trim();
-						retIDCardTransferredType.Name = idmsg[0].Trim();
-						retIDCardTransferredType.Address = idmsg[5].Trim();
-						retIDCardTransferredType.Sex = idmsg[1].Trim();
-						retIDCardTransferredType.BirthDay = idmsg[2].Trim();
+						value.IDNumber = idmsg[4].Trim();
+						value.Name = idmsg[0].Trim();
+						value.Address = idmsg[5].Trim();
+						value.Sex = idmsg[1].Trim();
+						value.BirthDay = idmsg[2].Trim();
+
+						idCardTransferredTypeArgs = value;
+						ret = true;
 					}
 				}
 			}
 
-			return retIDCardTransferredType;
+			return ret;
 		}
     }
 }

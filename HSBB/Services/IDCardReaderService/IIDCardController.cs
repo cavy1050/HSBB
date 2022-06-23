@@ -11,6 +11,6 @@ namespace HSBB.Services
     {
         bool Exit();
 
-        IDCardTransferredType Load();
+        bool Load(out IDCardTransferredType idCardTransferredTypeArgs);
     }
 }

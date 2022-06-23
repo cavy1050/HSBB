@@ -9,6 +9,6 @@ namespace HSBB.Services
 {
     public interface IElectronicCertificateController
     {
-        T Load<T>(string electronicCertificateStringArgs) where T : class;
+        bool Load<T>(out T t,string electronicCertificateStringArgs) where T : class;
     }
 }

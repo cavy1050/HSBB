@@ -286,6 +286,10 @@ namespace HSBB.Models
 
         IContainerProvider containerProvider;
         IApplictionController applictionController;
+        IEntityCertificateController entityCertificateController;
+        IElectronicCertificateController electronicCertificateController;
+        IIDCardController idCardController;
+        IDataBaseController dataBaseController;
         NativeDataBaseController nativeDataBaseController;
 
         public RegisterModel(IContainerProvider containerProviderArgs)
@@ -299,21 +303,24 @@ namespace HSBB.Models
 
         public void LoadDictionaryData()
         {
-            DictionaryType dictionaryType = nativeDataBaseController.LoadDictionaryData();
-            this.SexTypes = new ObservableCollection<SexType>(dictionaryType.SexTypes);
-            this.NationTypes = new ObservableCollection<NationType>(dictionaryType.NationTypes);
-            this.SpecimenCollectionTypes = new ObservableCollection<SpecimenCollectionType>(dictionaryType.SpecimenCollectionTypes);
-            this.CategoryTypes = new ObservableCollection<CategoryType>(dictionaryType.CategoryTypes);
-            this.DetectionTypes = new ObservableCollection<DetectionType>(dictionaryType.DetectionTypes);
-            this.IDCardReaderTypes = new ObservableCollection<IDCardReaderType>(dictionaryType.IDCardReaderTypes);
-            this.ElectronicCertificateTypes = new ObservableCollection<ElectronicCertificateType>(dictionaryType.ElectronicCertificateTypes);
-            this.EntityCertificateTypes = new ObservableCollection<EntityCertificateType>(dictionaryType.EntityCertificateTypes);
-            this.DataBaseServiceTypes = new ObservableCollection<DataBaseServiceType>(dictionaryType.DataBaseServiceTypes);
+            if (applictionController.Load())
+            {
+                DictionaryType dictionaryType = nativeDataBaseController.LoadDictionaryData();
+                this.SexTypes = new ObservableCollection<SexType>(dictionaryType.SexTypes);
+                this.NationTypes = new ObservableCollection<NationType>(dictionaryType.NationTypes);
+                this.SpecimenCollectionTypes = new ObservableCollection<SpecimenCollectionType>(dictionaryType.SpecimenCollectionTypes);
+                this.CategoryTypes = new ObservableCollection<CategoryType>(dictionaryType.CategoryTypes);
+                this.DetectionTypes = new ObservableCollection<DetectionType>(dictionaryType.DetectionTypes);
+                this.IDCardReaderTypes = new ObservableCollection<IDCardReaderType>(dictionaryType.IDCardReaderTypes);
+                this.ElectronicCertificateTypes = new ObservableCollection<ElectronicCertificateType>(dictionaryType.ElectronicCertificateTypes);
+                this.EntityCertificateTypes = new ObservableCollection<EntityCertificateType>(dictionaryType.EntityCertificateTypes);
+                this.DataBaseServiceTypes = new ObservableCollection<DataBaseServiceType>(dictionaryType.DataBaseServiceTypes);
 
-            CurrentEntityCertificateType = EntityCertificateTypes.FirstOrDefault(x => x.EntityCertificateCode == applictionController.ConfigSettings["defaultEntityCertificateReaderType"]);
-            CurrentElectronicCertificateType = ElectronicCertificateTypes.FirstOrDefault(x => x.ElectronicCertificateCode == applictionController.ConfigSettings["defaultElectronicCertificateReaderType"]);
-            CurrentIDCardReaderType = IDCardReaderTypes.FirstOrDefault(x => x.IDCardReaderCode == applictionController.ConfigSettings["defaultIDCardReaderType"]);
-            CurrentDataBaseServiceType = DataBaseServiceTypes.FirstOrDefault(x => x.DataBaseServiceCode == applictionController.ConfigSettings["defaultDataBaseServiceType"]);
+                CurrentEntityCertificateType = EntityCertificateTypes.FirstOrDefault(x => x.EntityCertificateCode == applictionController.ConfigSettings["defaultEntityCertificateReaderType"]);
+                CurrentElectronicCertificateType = ElectronicCertificateTypes.FirstOrDefault(x => x.ElectronicCertificateCode == applictionController.ConfigSettings["defaultElectronicCertificateReaderType"]);
+                CurrentIDCardReaderType = IDCardReaderTypes.FirstOrDefault(x => x.IDCardReaderCode == applictionController.ConfigSettings["defaultIDCardReaderType"]);
+                CurrentDataBaseServiceType = DataBaseServiceTypes.FirstOrDefault(x => x.DataBaseServiceCode == applictionController.ConfigSettings["defaultDataBaseServiceType"]);
+            }
         }
 
         public void ClearUp()
@@ -333,54 +340,151 @@ namespace HSBB.Models
             this.Remarks = string.Empty;
         }
 
-        public void TransformData<T>(T t) where T : class
+        public bool TransformServiceData(CertificateEnum certificateEnumArgs)
         {
-            if (t is GovernmentAffairsTransferredType)
-            {
-                GovernmentAffairsTransferredType value = t as GovernmentAffairsTransferredType;
+            bool ret = false;
 
-                if (value != null)
+            if (certificateEnumArgs == CertificateEnum.IDCard)
+            {
+                string currentIDCardReaderType = CurrentIDCardReaderType.IDCardReaderCode;
+                if (!string.IsNullOrEmpty(currentIDCardReaderType))
                 {
-                    this.Name = value.Name;
-                    this.Sex = SexTypes.FirstOrDefault(x => x.SexName == value.Sex).SexCode;
-                    this.BirthDay = Convert.ToDateTime(value.BirthDay).Date.ToShortDateString();
-                    this.Address = value.Address;
-                    this.IDNumber = value.IDNumber;
-                    this.PhoneNumber = value.PhoneNumber;
+                    IDCardTransferredType value = new IDCardTransferredType();
+                    idCardController = containerProvider.Resolve<IIDCardController>(currentIDCardReaderType);
+                    if (idCardController.Load(out value))
+                    {
+                        if (value != null)
+                        {
+                            this.Name = value.Name;
+                            this.Sex = value.Sex;
+                            this.BirthDay = DateTime.ParseExact(value.BirthDay, "yyyyMMdd", CultureInfo.CurrentCulture).Date.ToShortDateString();
+                            this.Address = value.Address;
+                            this.IDNumber = value.IDNumber;
+                            this.Photo = value.Photo;
+                        }
+                        ret = true;
+                    }
                 }
             }
-            else if (t is IDCardTransferredType)
+            else if (certificateEnumArgs == CertificateEnum.EntityCertificate)
             {
-                IDCardTransferredType value = t as IDCardTransferredType;
-
-                if (value != null)
+                string currentEntityCertificateType = CurrentEntityCertificateType.EntityCertificateCode;
+                if (!string.IsNullOrEmpty(currentEntityCertificateType))
                 {
-                    this.Name = value.Name;
-                    this.Sex = value.Sex;
-                    this.BirthDay = DateTime.ParseExact(value.BirthDay, "yyyyMMdd", CultureInfo.CurrentCulture).Date.ToShortDateString();
-                    this.Address = value.Address;
-                    this.IDNumber = value.IDNumber;
-                    this.Photo = value.Photo;
+                    MedicalInsuranceTransferredType value = new MedicalInsuranceTransferredType();
+                    entityCertificateController = containerProvider.Resolve<IEntityCertificateController>(currentEntityCertificateType);
+                    if(entityCertificateController.Load<MedicalInsuranceTransferredType>(out value))
+                    {
+                        if (value != null)
+                        {
+                            this.Name = value.Name;
+                            this.Sex = value.Sex;
+                            this.Nation = value.Nation;
+                            this.BirthDay = value.BirthDay;
+                            this.IDNumber = value.IDNumber;
+                        }
+
+                        ret = true;
+                    }
                 }
             }
-            else if (t is MedicalInsuranceTransferredType)
-            {
-                MedicalInsuranceTransferredType value = t as MedicalInsuranceTransferredType;
 
-                if (value != null)
-                {
-                    this.Name = value.Name;
-                    this.Sex = value.Sex;
-                    this.Nation = value.Nation;
-                    this.BirthDay = value.BirthDay;
-                    this.IDNumber = value.IDNumber;
-                }
-            }
+            return ret;
         }
 
-        public List<WaitForSynchronizeType> FetchSynchronizeData()
+        public bool TransformServiceData(CertificateEnum certificateEnumArgs,string electronicCertificateStringArgs)
         {
-            return nativeDataBaseController.FetchSynchronizeData();
+            bool ret = false;
+
+            if (certificateEnumArgs == CertificateEnum.ElectronicCertificate)
+            {
+                string currentElectronicCertificateType = CurrentElectronicCertificateType.ElectronicCertificateCode;
+                if (currentElectronicCertificateType == "YBM")
+                {
+                    MedicalInsuranceTransferredType value = new MedicalInsuranceTransferredType();
+                    electronicCertificateController = containerProvider.Resolve<IElectronicCertificateController>(currentElectronicCertificateType);
+                    if (electronicCertificateController.Load<MedicalInsuranceTransferredType>(out value, string.Empty))
+                    {
+                        if (value != null)
+                        {
+                            this.Name = value.Name;
+                            this.Sex = value.Sex;
+                            this.Nation = value.Nation;
+                            this.BirthDay = value.BirthDay;
+                            this.IDNumber = value.IDNumber;
+                        }
+
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(currentElectronicCertificateType))
+                    {
+                        GovernmentAffairsTransferredType value = new GovernmentAffairsTransferredType();
+                        electronicCertificateController = containerProvider.Resolve<IElectronicCertificateController>(currentElectronicCertificateType);
+                        if (electronicCertificateController.Load<GovernmentAffairsTransferredType>(out value, electronicCertificateStringArgs))
+                        {
+                            if (value != null)
+                            {
+                                this.Name = value.Name;
+                                this.Sex = SexTypes.FirstOrDefault(x => x.SexName == value.Sex).SexCode;
+                                this.BirthDay = Convert.ToDateTime(value.BirthDay).Date.ToShortDateString();
+                                this.Address = value.Address;
+                                this.IDNumber = value.IDNumber;
+                                this.PhoneNumber = value.PhoneNumber;
+                            }
+
+                            ret = true;
+                        }                       
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public bool SaveConfigData()
+        {
+            bool ret = false;
+
+           if(applictionController.Load())
+            {
+                applictionController.ConfigSettings["defaultEntityCertificateReaderType"] = CurrentEntityCertificateType.EntityCertificateCode;
+                applictionController.ConfigSettings["defaultIDCardReaderType"] = CurrentIDCardReaderType.IDCardReaderCode;
+                applictionController.ConfigSettings["defaultElectronicCertificateReaderType"] = CurrentElectronicCertificateType.ElectronicCertificateCode;
+                applictionController.ConfigSettings["defaultDataBaseServiceType"] = CurrentDataBaseServiceType.DataBaseServiceCode;
+
+                if (applictionController.Save(applictionController.ConfigSettings))
+                    ret = true;
+            }
+
+            return ret;
+        }
+
+        public int FetchSynchronizeData()
+        {
+            return nativeDataBaseController.FetchSynchronizeData().Count;
+        }
+
+        public bool SaveData(RegisterModel registerModelArgs)
+        {
+            bool ret = false;
+
+            string currentDataBaseServiceType = CurrentDataBaseServiceType.DataBaseServiceCode;
+
+            if (!string.IsNullOrEmpty(currentDataBaseServiceType))
+            {
+                dataBaseController = containerProvider.Resolve<IDataBaseController>(currentDataBaseServiceType);
+
+                if (dataBaseController.Save(registerModelArgs))
+                {
+                    ret = true;
+                    ClearUp();
+                }
+            }
+
+            return ret;
         }
     }
 }
